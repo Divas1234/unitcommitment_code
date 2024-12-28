@@ -98,7 +98,7 @@ function draw_case1_SFRdistribution(data1, data2)
 		tickfontfamily = "Helvetica",
 		legendfontfamily = "Helvetica",
 
-		lw = 2,
+		lw = 1.5,
 		foreground_color_legend = nothing,
 		grid = false,
 		ga = 0.25,
@@ -111,15 +111,16 @@ function draw_case1_SFRdistribution(data1, data2)
 		# lw = 1.0,
 		# xlims = (-0.345, -0.340),
 		ylims = (0, 1000),
-		fill = (0, 0.25, :skyblue),
+		fill = (0, 0.25, colorant"#97a6c4"),
 		# lc = :deepskyblue,
-		label = "Residual 1: N(0,1e-2)")
+		label = "Residual 1: Normal(0,1e-2)")
 	fig = Plots.density!(-xdata2,
-		lw = 2,
+		lw = 1.5,
 		# lw = 1.0,
-		fill = (0, 0.5, :orange),
+		fill = (0, 0.25, colorant"#1a80bb"),
 		# label=L"\textbf{Case 2}",
-		label = "Residual 2: N(0,1e-2)",        # lc = :firebrick1,
+		label = "Residual 2: Normal(0,1e-1)",
+		# lc = :firebrick1,
 	)
 	return fig
 end
@@ -185,16 +186,18 @@ function draw_case1_boxplot(data1, data2)
 		legend = :bottomleft,
 		# label=L"\textbf{Case 1}: N(0,0.01)",
 		# label=L"\textbf{Case 1}",
-		label = "Residual 1:N(0,1e-2)",
+		label = "Residual 1:Normal(0,1e-2)",
 		ga = 0.25,
+		# fill = (0, 0.25, colorant"#97a6c4"),
 		fa = 0.5,
-		lw = 1)
+		lw = 1.5)
 	p1 = Plots.boxplot!(-xdata2;
-		label = "Residual 2:N(0,1e-1)",
+		label = "Residual 2:Normal(0,1e-1)",
 		bar_width = 0.350,
 		whisker_range = 1.50,
 		fa = 0.25,
-		lw = 1)
+		# fill = (0, 0.25, colorant"#384860"),
+		lw = 1.5)
 	return p1
 end
 # function KDEestimation(data)

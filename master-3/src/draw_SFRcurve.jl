@@ -62,12 +62,12 @@ function draw_sfr_curve3(xdata, ydata₁, ydata₂, ydata₃, ydata₄, sampleda
 	end
 
 	p1 = Plots.plot(xdata[1:1201, 1], ydata₁[1:1201, 1];
-		color = :skyblue,
+		color = colorant"#b8b8b8",
 		la = 1,
-		fa = 0.75,
+		fa = 0.5,
 		ribbon = tem1[:, 2] .* 20, label = false)
 	Plots.plot!(xdata[1:1201, 1], ydata₃[1:1201, 1];
-		color = :orange,
+		color = colorant"#b8b8b8",
 		fa = 0.75,
 		la = 1,
 		ribbon = tem2[:, 2] .* 20, label = false)
@@ -76,54 +76,33 @@ function draw_sfr_curve3(xdata, ydata₁, ydata₂, ydata₃, ydata₄, sampleda
 		ydata₁[1:1201, 1];
 		# size = (400, 300),
 		size = (300, 300),
-		lc = :blue,
-		la = 0.5,
+		lc = colorant"#2066a8",
+		la = 0.95,
 		xlabel = L"t / s",
 		palette = :grays,
 		ylabel = L"\Delta f / Hz",
-		# fontfamily = "Computer Modern",
-		# tickfontfamily = "Palatino Bold",
-		# legendfontfamily = "Palatino Bold",
-		# plot_ylabelfontfamily = "",
-		
-		# tickfontfamily = "Computer Modern",
-		# legendfontfamily = "Computer Modern",
-
-
-
-		
 		fontfamily = "Helvetica",
 		tickfontfamily = "Helvetica",
-		legendfontfamily = "Helvetica",
-
-
-		foreground_color_legend = nothing,
-		# legend=:bottomright,
+		legendfontfamily = "Helvetica", foreground_color_legend = nothing,
 		xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
 		foreground_color_grid = :grey,
 		xticks = (collect(0:5:60), collect(0:5:60)),
-		gridalpha = 0.25,
-		lw = 2.5,
-		grid = :false,
+		gridalpha = 0.5,
+		lw = 1.50,
+		grid = false,
 		background_color_inside = :transparent,
 		xlims = (-2, 62),
 		framestyle = :box,
-		axiswidth = 5,
-		# xlabelfontsize = 12,
-		# gridlinewidth = 1,
-		# ylabelfontsize = 12,
-		# xtickfontsize = 10,
-		# ytickfontsize = 10,
-		# legendfontsize = 10,
+		axiswidth = 2.5,
 		ylims = (-0.4, 0.2),
-		label = "Case 1: BF-SFR",
+		label = "Case 1 (w/o converter): BF-SFR",
 	)
-	Plots.plot!(xdata[1:1201, 1], ydata₃[1:1201, 1]; lw = 2.5, lc = :red, la = 0.75, label = "Case 2: BF-SFR")
-	Plots.plot!(xdata[1:1201, 1], ydata₂[1:1201, 1]; lw = 2.5, lc = :blue, la = 0.75, ls = :dashdot, label = "Case 1: simulator")
-	Plots.plot!(xdata[1:1201, 1], ydata₄[1:1201, 1]; lw = 2.5, lc = :red, la = 0.75, ls = :dashdot, label = "Case 2: simulator")
+	Plots.plot!(xdata[1:1201, 1], ydata₃[1:1201, 1]; lw = 1.50, la = 0.95, lc = colorant"#3594cc", label = "Case 2 (w/   converter): BF-SFR")
+	Plots.plot!(xdata[1:1201, 1], ydata₂[1:1201, 1]; lw = 1.50, la = 0.95, lc = colorant"#a00000", label = "Case 1 (w/o converter): simulator")
+	Plots.plot!(xdata[1:1201, 1], ydata₄[1:1201, 1]; lw = 1.50, la = 0.50, lc = colorant"#a00000", label = "Case 2 (w/   converter): simulator")
 	return p1
-end
 
+end
 # using Plots, DelimitedFiles, LaTeXStrings, PlotThemes
 # # Plots.theme(:dao)
 # function draw_sfr_curve1(xdata, ydata₁, ydata₂, ydata₃)

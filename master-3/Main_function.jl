@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/.pkg/")
-using DelimitedFiles, Random, Plots, PlotlyJS, PGFPlotsX, Gaston, PlotThemes
+using DelimitedFiles, Random, Plots, PlotThemes
 
 # plotlyjs()
 # gaston()
@@ -57,14 +57,6 @@ fig2 = Plots.plot(p6, p7; size = (600, 200), layout = (1, 2))
 Plots.savefig(fig2, figpath * "surface1and2.pdf")
 
 # !SECTION save data
-open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/result.txt", "w") do io
-	writedlm(io, [" "])
-	writedlm(io, sampledata1, '\t')
-end
-open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/result1.txt", "w") do io
-	writedlm(io, [" "])
-	writedlm(io, sampledata2, '\t')
-end
 
 # !draw trend curve along with different residual settings.
 # ANCHOR xesix, asfr data, bf-sfr data, sim data, samplied data
@@ -89,3 +81,4 @@ open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/resul
 	writedlm(io, [" "])
 	writedlm(io, new_ydata, '\t')
 end
+

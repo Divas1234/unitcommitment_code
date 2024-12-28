@@ -61,3 +61,8 @@ p1
 # Plots.plot!(kde_xdata[7,:], kde_ydata[7,:], legend = false)
 # Plots.plot!(kde_xdata[8,:], kde_ydata[8,:], legend = false)
 # Plots.plot!(kde_xdata[9,:], kde_ydata[9,:], legend = false)
+
+
+
+using Plots
+Plots.plot(rand(10), rand(10), lc = colorant"#a00000", legend = false)

@@ -16,6 +16,16 @@ function draw_sfr_surfacedistribution(sampledata1, sampledata2)
 		new_sampledata[i, :] = pdf.(Normal(0, tem[i, 2] * 20), collect(-0.1:(0.20/99):0.1))
 	end
 
+	open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/original_result.txt", "w") do io
+		writedlm(io, [" "])
+		writedlm(io, sampledata1, '\t')
+	end
+	open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/reformed_result.txt", "w") do io
+		writedlm(io, [" "])
+		writedlm(io, new_sampledata, '\t')
+	end
+
+
 	xdata = collect(1:1:1201)
 	ydata = collect(1:1:100)
 	p1 = Plots.surface(ydata, xdata, new_sampledata;
@@ -43,7 +53,7 @@ function draw_sfr_surfacedistribution(sampledata1, sampledata2)
 		camera = (60, 60))
 	filepath = pwd()
 
-	# sample - data2
+	#! sample - data2
 	new_sampledata = zeros(1201, 100)
 	tem = zeros(1201, 2)
 	for i in 1:1201
@@ -54,6 +64,16 @@ function draw_sfr_surfacedistribution(sampledata1, sampledata2)
 	for i in 1:1201
 		new_sampledata[i, :] = pdf.(Normal(-0, tem[i, 2] * 20), collect(-0.1:(0.20/99):0.1))
 	end
+
+	open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/original_result1.txt", "w") do io
+		writedlm(io, [" "])
+		writedlm(io, sampledata2, '\t')
+	end
+	open("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/master-3/out/reformed_result1.txt", "w") do io
+		writedlm(io, [" "])
+		writedlm(io, new_sampledata, '\t')
+	end
+
 	xdata = collect(1:1:1201)
 	ydata = collect(1:1:100)
 	p2 = Plots.surface(ydata, xdata, new_sampledata;
