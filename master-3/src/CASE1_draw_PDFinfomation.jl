@@ -84,13 +84,20 @@ function draw_case1_SFRdistribution(data1, data2)
 		background_color_inside = :transparent,
 		# ylims=(0, 1.5e4),
 		xlabel = L"\Delta f(t) / Hz",
-		ylabel = L"\textrm{Posterior\,\, probabilistic\,\, density}",
+		ylabel = "Posterior distribution density",
 		# xrotation = 30,
 		xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
 		# tickfontfamily = "Palatino Bold",
 		# legendfontfamily = "Palatino Bold",
-		tickfontfamily = "Computer Modern",
-		legendfontfamily = "Computer Modern",
+
+		# tickfontfamily = "Computer Modern",
+		# legendfontfamily = "Computer Modern",
+
+
+		fontfamily = "Helvetica",
+		tickfontfamily = "Helvetica",
+		legendfontfamily = "Helvetica",
+
 		lw = 2,
 		foreground_color_legend = nothing,
 		grid = false,
@@ -106,13 +113,13 @@ function draw_case1_SFRdistribution(data1, data2)
 		ylims = (0, 1000),
 		fill = (0, 0.25, :skyblue),
 		# lc = :deepskyblue,
-		label = "Residual 1: N(0,0.001)")
+		label = "Residual 1: N(0,1e-2)")
 	fig = Plots.density!(-xdata2,
 		lw = 2,
 		# lw = 1.0,
 		fill = (0, 0.5, :orange),
 		# label=L"\textbf{Case 2}",
-		label = "Residual 2: N(0,0.010)",        # lc = :firebrick1,
+		label = "Residual 2: N(0,1e-2)",        # lc = :firebrick1,
 	)
 	return fig
 end
@@ -144,18 +151,33 @@ function draw_case1_boxplot(data1, data2)
 		# xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
 		xticks = (1:1:2, ["Case 1", "Case 2"]),
 		ylabel = L"\Delta f(t) / Hz",
-		xlabel = L"\textrm{Different\,\,uncertain\,\, variability\,\, settings}",
+		# xlabel = L"\Delta f(t) / Hz",
+		# xlabel = L"\textrm{Different\,\,uncertain\,\, variability\,\, settings}",
 		bar_width = 0.350,
 		# notch = true,
 		# ylims = (-0.35, -0.3325),
 		xlims = (-1, 2.5),
 		background_color_inside = :transparent,
 		whisker_range = 1.50,
-		xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
+		xtickfontsize = 8, 
+		ytickfontsize = 8, 
+		legendfontsize = 8, 
+		xguidefontsize = 8, 
+		yguidefontsize = 8, 
+		titlefontsize = 8, 
+		linealpha = 0.75, 
+		ylabelfontsize = 10, 
+		xlabelfontsize = 10,
 		# tickfontfamily = "Palatino Bold",
 		# legendfontfamily = "Palatino Bold",
-		tickfontfamily = "Computer Modern",
-		legendfontfamily = "Computer Modern",
+
+		# tickfontfamily = "Computer Modern",
+		# legendfontfamily = "Computer Modern",
+
+		fontfamily = "Helvetica",
+		tickfontfamily = "Helvetica",
+		legendfontfamily = "Helvetica",
+		
 		foreground_color_legend = nothing,
 		grid = false,
 		outliers = false,
@@ -163,12 +185,12 @@ function draw_case1_boxplot(data1, data2)
 		legend = :bottomleft,
 		# label=L"\textbf{Case 1}: N(0,0.01)",
 		# label=L"\textbf{Case 1}",
-		label = "Residual 1: N(0,0.001)",
+		label = "Residual 1:N(0,1e-2)",
 		ga = 0.25,
 		fa = 0.5,
 		lw = 1)
 	p1 = Plots.boxplot!(-xdata2;
-		label = "Residual 2: N(0,0.010)",
+		label = "Residual 2:N(0,1e-1)",
 		bar_width = 0.350,
 		whisker_range = 1.50,
 		fa = 0.25,

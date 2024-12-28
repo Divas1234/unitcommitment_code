@@ -85,8 +85,18 @@ function draw_sfr_curve3(xdata, ydata₁, ydata₂, ydata₃, ydata₄, sampleda
 		# tickfontfamily = "Palatino Bold",
 		# legendfontfamily = "Palatino Bold",
 		# plot_ylabelfontfamily = "",
-		tickfontfamily = "Computer Modern",
-		legendfontfamily = "Computer Modern",
+		
+		# tickfontfamily = "Computer Modern",
+		# legendfontfamily = "Computer Modern",
+
+
+
+		
+		fontfamily = "Helvetica",
+		tickfontfamily = "Helvetica",
+		legendfontfamily = "Helvetica",
+
+
 		foreground_color_legend = nothing,
 		# legend=:bottomright,
 		xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
