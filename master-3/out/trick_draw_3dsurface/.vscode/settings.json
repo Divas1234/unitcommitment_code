@@ -1,4 +1,5 @@
 {
     "editor.fontFamily": "Hack, Menlo, Monaco, 'Courier New', monospace",
-    "editor.fontSize": 14
+    "editor.fontSize": 14,
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
