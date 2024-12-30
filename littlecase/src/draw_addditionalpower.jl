@@ -63,19 +63,18 @@ function draw_SFR_additionalpower(sum_ConventionalUnitsPower_bench, sum_WindPowe
 		xlims = (0, 30),
 		ylims = (0, 0.35),
 		size = (300, 300),
-		xlabel = L"t / s",
-		ylabel = L"\textrm{Output \,/\, p.u.}",
-		label = "FDUC",
-		# xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
-		# foreground_color_legend = nothing,
-		tickfontfamily = "Palatino Bold",
-		legendfontfamily = "Palatino Bold",
+		xlabel = "t / s",
+		ylabel = "Output / p.u.",
+		label = "FCUC",
+		tickfontfamily = "Helvetica",
+		legendfontfamily = "Helvetica", foreground_color_legend = nothing,
+		xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
 		labelfontfamily = "Palatino Bold",
 		framestyle = :box,
 		foreground_color_grid = :grey,
 		lw = 3,
-		lc = :orange,
-		la = 0.75,
+        lc=colorant"#1a80bb",
+		la = 0.95,
 		# ls = :dash,
 		grid = :true,
 		xticks = (collect(0:10:30), collect(0:10:30)))
@@ -84,9 +83,9 @@ function draw_SFR_additionalpower(sum_ConventionalUnitsPower_bench, sum_WindPowe
 	# 	label = "FDUC",
 	# 	lw = 2.0)
 	p1 = Plots.plot!(collect(0:0.05:60), sum_ConventionalUnitsPower_enhanced[1:1201, 1] .+ sum_WindPower_enhanced[1:1201, 1] .+ sum_Bess_enhanced[1:1201, 1];
-		label = "CCFDUC",
-		la = 0.5,
-		lc = :blue,
+		label = "r-FCUC",
+		la = 0.95,
+        lc=colorant"#a00000",
 		lw = 3.0)
 
 	return p1

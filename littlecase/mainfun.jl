@@ -24,26 +24,15 @@ include("src/draw_onlineactivepowerbalance.jl")
 include("src/cal_Diffaggregatedfrequencyparameters.jl")
 include("src/draw_addditionalpower.jl")
 include("src/new_BFLib_consideringFRlimit.jl")
+
 UnitsFreqParam, WindsFreqParam, StrogeData, DataGen, GenCost, DataBranch, LoadCurve, DataLoad = readxlssheet()
 config_param, units, lines, loads, stroges, NB, NG, NL, ND, NT, NC = forminputdata(DataGen, DataBranch, DataLoad, LoadCurve, GenCost, UnitsFreqParam, StrogeData)
-
-# Plots.bar(collect([1:1:24]), LoadCurve[:, 2] ./ 100,
-#     ylims=(0, 4.5),
-#     ylabel="Output / p.u.",
-#     xtickfontsize=8, ytickfontsize=8, legendfontsize=8, xguidefontsize=8, yguidefontsize=8, titlefontsize=8, linealpha=0.75, ylabelfontsize=12, xlabelfontsize=12,
-#     size=(400, 300),
-#     xlabel="t / h",
-#     xlims=(0, 25),
-#     foreground_color_grid=:lightgrey,
-#     framestyle=:box, xticks=(collect(0:1:24), collect(0:1:24)),
-#     # size=(667 * 0.75, 500 * 0.75),
-#     label="Demand curve",
-# )
 
 winds, NW = genscenario(WindsFreqParam, 1)
 
 boundrycondition(NB::Int64, NL::Int64, NG::Int64, NT::Int64, ND::Int64, units::unit, loads::load, lines::transmissionline, winds::wind, stroges::stroge)
 
+# TODO FCUC and r-FCUC constraints invalid
 e_x₀, e_p₀, e_pᵨ, e_pᵩ, e_seq_sr⁺, e_seq_sr⁻, e_pss_charge_p⁺, e_pss_charge_p⁻, e_su_cost, e_sd_cost, e_prod_cost, e_cost_sr⁺, e_cost_sr⁻ = enhance_FCUC_scucmodel(NT, NB, NG, ND, NC, units, loads, winds, lines, config_param)
 savebalance_result(e_p₀, e_pᵨ, e_pᵩ, e_pss_charge_p⁺, e_pss_charge_p⁻, 3)
 
@@ -58,69 +47,63 @@ savebalance_result(bench_p₀, bench_pᵨ, bench_pᵩ, bench_pss_charge_p⁺, be
 gr()
 theme(:default)
 fig1 = Plots.bar(LoadCurve[:, 2];
-	size   = (300, 280),
-	xlabel = L"t / h",
-	ylabel = L"\textrm{Output \,/\, p.u.}",
-	# ylabel="功率 / 100 kW",
-	yticks = (collect(200:50:350), collect(2:0.50:3.50)),
-	# xticks=(collect(1:1:24), collect(1:1:24)),
-	# xtickfontsize=10, ytickfontsize=10, legendfontsize=10, xguidefontsize=10, yguidefontsize=10, titlefontsize=10, linealpha=0.75, ylabelfontsize=12, xlabelfontsize=12,
-	framestyle = :box,
-	foreground_color_grid = RGB(120 / 255, 120 / 255, 120 / 255),
-	lc = RGB(120 / 255, 120 / 255, 120 / 255),
-	bar_width = 0.5,
-	lw = 0,
-	tickfontfamily = "Palatino Bold",
-	legendfontfamily = "Palatino Bold",
-	# fa=0.5,
+	size                    = (300, 300),
+	xlabel                  = "t / h",
+	ylabel                  = "Output / p.u.",
+	yticks                  = (collect(200:50:350), collect(2:0.50:3.50)),
+	foreground_color_legend = nothing,
+	xtickfontsize           = 8,
+	ytickfontsize           = 8,
+	legendfontsize          = 8,
+	xguidefontsize          = 8,
+	yguidefontsize          = 8,
+	titlefontsize           = 8,
+	linealpha               = 0.75,
+	ylabelfontsize          = 10,
+	xlabelfontsize          = 10,
+	framestyle              = :box,
+	foreground_color_grid   = RGB(120 / 255, 120 / 255, 120 / 255),
+	lc                      = RGB(120 / 255, 120 / 255, 120 / 255),
+	bar_width               = 0.85,
+	lw                      = 0,
+	tickfontfamily          = "Helvetica",
+	legendfontfamily        = "Helvetica",
 	background_color_inside = :transparent,
-	grid = :true,
-	# foreground_color_legend = nothing,
-	# gc = 0.5,
-	fillcolor = RGB(150 / 255, 150 / 255, 150 / 255),
-	xlims = (0, 25),
-	gridlinewidth = 1,
-	ylims = (200, 400),
-	# legend=true,
-	label = "System load")
-# fig1 = Plots.plot!(LoadCurve[:,2];
-# 	lc = RGB(80/255,80/255,80/255),
-# 	lw = 1,
-# 	markersize = 3,
-# 	markershape = :diamond,
-# )
+	grid                    = :true,
+	fillcolor               = colorant"#1a80bb",
+	xlims                   = (0, 25),
+	gridlinewidth           = 1,
+	ylims                   = (200, 400),
+	label                   = "System load")
 
-#! NOTE windcurve
-# winds, NW = genscenario(WindsFreqParam, 1)
-# fig2 = Plots.plot(
-#     winds.scenarios_curve';
-#     size=(300, 300),
-#     xlabel=L"t / h",
-#     ylabel=L"p_{w,t} \,/\,10^2\,\textrm{kW}",
-#     xtickfontsize=6, ytickfontsize=6, legendfontsize=6, xlabelfontsize=8, ylabelfontsize=8,
-#     lc=:cornflowerblue,
-#     legend=false
-#     # label = L"\textrm{Wind\,\, curve}",
-# )
-
+#? NOTE windcurve
 fig2 = Plots.plot(winds.scenarios_curve';
-	size = (300, 280),
-	xlabel = L"t / h",
-	ylabel = L"\textrm{Output \,\,/ p.u.}",
-	# xtickfontsize=10, ytickfontsize=10, legendfontsize=10, xguidefontsize=10, yguidefontsize=10, titlefontsize=10, linealpha=0.75, ylabelfontsize=12, xlabelfontsize=12,
-	framestyle = :box,
-	foreground_color_grid = :grey,
-	lc = :orange,
-	legend = false,
-	gridlinewidth = 2,
-	grid = :true,
-	ls = :dash,
-	lw = 0.5,
-	tickfontfamily = "Palatino Bold",
-	legendfontfamily = "Palatino Bold",
-	ylims = (0.32, 0.60),
-	xticks = (collect(0:5:25), collect(0:5:25)),
-	label = "Wind curve")
+	size                    = (300, 300),
+	xlabel                  = "t / h",
+	ylabel                  = "Output / p.u.",
+	framestyle              = :box,
+	foreground_color_grid   = :grey,
+	foreground_color_legend = nothing,
+	xtickfontsize           = 8,
+	ytickfontsize           = 8,
+	legendfontsize          = 8,
+	xguidefontsize          = 8,
+	yguidefontsize          = 8,
+	titlefontsize           = 8,
+	linealpha               = 0.75,
+	ylabelfontsize          = 10,
+	xlabelfontsize          = 10,
+	lc                      = colorant"#ea801c",
+	legend                  = false,
+	gridlinewidth           = 1,
+	grid                    = :true,
+	ls                      = :dot,
+	lw                      = 1.05,
+	tickfontfamily          = "Helvetica",
+	legendfontfamily        = "Helvetica",
+	ylims                   = (0.32, 0.60),
+	xticks                  = (collect(0:5:25), collect(0:5:25)),
+	label                   = "Wind curve")
 
 boundvector = zeros(24, 2)
 for t in 1:24
@@ -128,25 +111,27 @@ for t in 1:24
 	boundvector[t, 2] = minimum(winds.scenarios_curve[:, t])
 end
 fig2 = Plots.plot!(boundvector[:, 1];
-	lw = 1,
-	marker = :circle,
-	lc = :orange,
-	ls = :dash,
-	ma = 0.95,
+	lw         = 2,
+	marker     = :circle,
+	lc         = colorant"#a00000",
+	m          = colorant"#a00000",
+	ls         = :dot,
+	ma         = 1.95,
 	markersize = 3.0,
-	label = "Upper Bound")
+	label      = "Upper Bound")
 fig2 = Plots.plot!(boundvector[:, 2];
-	lw = 2,
-	ls = :dash,
-	marker = :circle,
-	lc = :orange,
-	ma = 0.95,
+	lw         = 2,
+	ls         = :dot,
+	mc         = colorant"#a00000",
+	marker     = :circle,
+	lc         = colorant"#a00000",
+	ma         = 1.95,
 	markersize = 3.0,
-	label = "Low Bound")
-fig2 = Plots.plot!(boundvector[:, 1], fillrange = boundvector[:, 2], fillalpha = 0.15, c = 1)
+	label      = "Low Bound")
+fig2 = Plots.plot!(boundvector[:, 1], fillrange = boundvector[:, 2], fillalpha = 0.05, c = 1)
 # fig3 = Plots.plot(fig1, fig2; size=(600, 300), layout=(1, 2))
 filepath = "/Users/yuanyiping/Documents/GitHub/unit_commitment_code/littlecase/fig/"
-fig3 = Plots.plot(fig1, fig2; size = (600, 200), layout = (1, 2))
+fig3 = Plots.plot(fig1, fig2; size = (600, 300), layout = (1, 2))
 Plots.savefig(fig1, filepath * "loadcurve.svg")
 Plots.savefig(fig2, filepath * "windsoutput.svg")
 Plots.savefig(fig3, filepath * "LOADandWINDscurves.svg")
@@ -165,7 +150,7 @@ fig4 = StatsPlots.groupedbar(nam,
 	tickfontfamily = "Palatino Bold",
 	legendfontfamily = "Palatino Roman",
 	bar_position = :dodge,
-	bar_width = 0.7,
+	bar_width = 0.75,
 	group = ctg,
 	xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
 	framestyle = :box,
@@ -188,10 +173,8 @@ end
 @show DataFrame(bench_x₀, :auto)
 
 maximum(units.p_max) * 0.50
-# Plots.plot(tem[:, 1])
-# Plots.plot!(tem[:, 2])
 
-sx = repeat(["CCFDUC", "FCUC", "TUC"]; inner = 24)
+sx = repeat(["r-FCUC", "FCUC", "TUC"]; inner = 24)
 std = [2, 3, 4, 1, 2, 3, 5, 2, 3, 3]
 nam = repeat(collect(1:1:24); outer = 3)
 p5 = groupedbar(nam, -[enhance_rocof_distribution rocof_distribution bench_rocof_distribution] / 10;
@@ -199,26 +182,27 @@ p5 = groupedbar(nam, -[enhance_rocof_distribution rocof_distribution bench_rocof
 	xlims = (0, 25),
 	ylims = (-1.250, 0.750),
 	# size=(667*0.75, 500*0.75),
-	ylabel = L"\textrm{ROCOF \,/\, Hz/s}",
+	ylabel = "ROCOF / Hz/s",
 	lw = 0.0,
-	# xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
+	tickfontfamily = "Helvetica",
+	legendfontfamily = "Helvetica",
+	xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
 	framestyle = :box,
+	foreground_color_legend = nothing,
 	foreground_color_grid = :grey,
-	xlabel = L"t / s",
+	xlabel = "t / s",
 	# fa = 0.75,
 	size = (300, 300),
 	grid = :true,
-	bar_width = 1.0,
+	bar_width = 0.50,
 	# foreground_color_legend = nothing,
-	tickfontfamily = "Palatino Bold",
-	labelfontfamily = "Palatino Bold",
-	legendfontfamily = "Palatino Bold",
 	xticks = (collect(0:5:25), collect(0:5:25)),
 	# yticks=(collect(-20:5:5), collect(-2.0:0.5:0.5)),
 	colorbar = false,
 	# fa=0.5,
 	# fillto = 0:0.1:0.4,
-	palette = :Paired_3)
+	palette = :Paired_3,
+)
 # gr()
 Plots.plot(enhance_nadir_distribution)
 
@@ -227,34 +211,52 @@ p6 = groupedbar(nam, -[-enhance_nadir_distribution -nadir_distribution -bench_na
 	xlims = (0, 25),
 	ylims = (-1.0, 0.50),
 	size = (300, 300),
-	ylabel = L"\textrm{Nadir \,/\, Hz}",
+	ylabel = "Nadir / Hz",
 	lw = 0.0,
 	bar_width = 1.0,
-	# xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
+	tickfontfamily = "Helvetica",
+	legendfontfamily = "Helvetica",
+	xtickfontsize = 8, ytickfontsize = 8, legendfontsize = 8, xguidefontsize = 8, yguidefontsize = 8, titlefontsize = 8, linealpha = 0.75, ylabelfontsize = 10, xlabelfontsize = 10,
 	framestyle = :box,
+	foreground_color_legend = nothing,
 	foreground_color_grid = :grey,
 	# foreground_color_legend = nothing,
-	xlabel = L"t / s",
+	xlabel = "t / s",
 	grid = :true,
-	tickfontfamily = "Palatino Bold",
-	legendfontfamily = "Palatino Bold",
-	labelfontfamily = "Palatino Bold",
+	# labelfontfamily = "Palatino Bold",
 	xticks = (collect(0:5:25), collect(0:5:25)),
 	# yticks=(collect(-1.0:0.25:0.5), collect(-1.0:0.25:0.5)),
 	colorbar = false,
 	# fa=0.5,
 	palette = :Paired_3)
 
-# x = rand(10)
-# p1 = Plots.plot(x, title="Default looks")
-# p2 = Plots.plot(x, grid=(:y, :olivedrab, :dot, 1, 0.9), title="Modified y grid")
-# p3 = Plots.plot(deepcopy(p2), title="Add x grid")
-# xgrid!(p3, :on, :cadetblue, 2, :dashdot, 0.4)
-# Plots.plot(p1, p2, p3, layout=(1, 3), label="", fillrange=0, fillalpha=0.3)
-
-fig7 = Plots.plot(p5, p6; legend_column = 2, layout = (1, 2), size = (600, 200))
+fig7 = Plots.plot(p5, p6; legend_column = 2, layout = (1, 2), size = (600, 300))
 Plots.savefig(p5, filepath * "ROCOF.svg")
 Plots.savefig(p6, filepath * "NADIR.svg")
+
+file_text_path = "/Users/yuanyiping/Documents/GitHub/unit_commitment_code/littlecase/output/RocofandNadir_distribution/"
+filenames = [
+	"enhance_nadir_distribution.txt",
+	"nadir_distribution.txt",
+	"bench_nadir_distribution.txt",
+	"enhance_rocof_distribution.txt",
+	"rocof_distribution.txt",
+	"bench_rocof_distribution.txt",
+]
+distributions = [
+	enhance_nadir_distribution,
+	nadir_distribution,
+	bench_nadir_distribution,
+	enhance_rocof_distribution,
+	rocof_distribution,
+	bench_rocof_distribution,
+]
+
+for (filename, distribution) in zip(filenames, distributions)
+	open(file_text_path * filename, "w") do file
+		writedlm(file, distribution)
+	end
+end
 
 # filepath = pwd()
 Plots.savefig(fig7,
@@ -308,23 +310,32 @@ fig6 = Plots.plot(collect(0:0.05:60),
 	xlims = (0, 30),
 	ylims = (-0.4, 0.1),
 	# foreground_color_legend = nothing,
-	tickfontfamily = "Palatino Bold",
-	legendfontfamily = "Palatino Bold",
-	xlabel = L"t / s",
-	# xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
-	framestyle = :box,
-	grid = :true,
-	foreground_color_grid = :grey,
-	lw = 3,
-	lc = :orange,
-	la = 0.75,
-	xticks = (collect(0:10:60), collect(0:10:60)),
-	ylabel = L"\Delta f(t) / Hz",
-	labelfontfamily = "Palatino Bold",
-	label = "FDUC")
+	xlabel                  = "t / s",
+	tickfontfamily          = "Helvetica",
+	legendfontfamily        = "Helvetica",
+	foreground_color_legend = nothing,
+	xtickfontsize           = 8,
+	ytickfontsize           = 8,
+	legendfontsize          = 8,
+	xguidefontsize          = 8,
+	yguidefontsize          = 8,
+	titlefontsize           = 8,
+	linealpha               = 0.75,
+	ylabelfontsize          = 10,
+	xlabelfontsize          = 10,
+	framestyle              = :box,
+	grid                    = :true,
+	foreground_color_grid   = :grey,
+	lw                      = 3,
+	lc                      = colorant"#1a80bb",
+	la                      = 0.75,
+	xticks                  = (collect(0:10:60), collect(0:10:60)),
+	ylabel                  = L"\Delta f(t) / Hz",
+	labelfontfamily         = "Helvetica",
+	label                   = "FCUC")
 
 # fig6 = Plots.plot!(collect(0:0.05:60), -δf_positor[1:1201, 1]; lw = 3.0, label = "FDUC")
-fig6 = Plots.plot!(collect(0:0.05:60), -enhance_δf_positor[1:1201, 1]; lc = :blue, la = 0.5, lw = 3.0, label = "CCFDUC")
+fig6 = Plots.plot!(collect(0:0.05:60), -enhance_δf_positor[1:1201, 1]; lc = colorant"#a00000", la = 0.5, lw = 3.0, label = "r-FCUC")
 
 # filepath = pwd()
 # fig5 = Plots.plot(collect(1:NT), -bench_nadir_distribution,
@@ -375,38 +386,6 @@ bench_M, bench_H, bench_D, T, bench_R, bench_F, K, δp, endtime = formparameter(
 
 δp_add = δf_positor * K / R * 0.50
 bench_δp_add = bench_δf_positor * K / bench_R * 0.50
-# fig7 = Plots.plot(
-#     collect(0:0.05:30),
-#     δp_actual[1:601, 1];
-#     ylims=(0, 3.0),
-#     size=(300, 300),
-#     xlabel=L"t\,\,\,[\,s\,]",
-#     ylabel=L"\Delta p_{add}(t)\,\,/\,\times e^2 \,\,\textrm{kW}\,\,",
-#     label=L"\textrm{FDUC}",
-#     xtickfontsize=6, ytickfontsize=6, legendfontsize=6, xlabelfontsize=8, ylabelfontsize=8
-# )
-# fig7 = Plots.plot!(collect(0:0.05:30), bench_δp_actual[1:601, 1] * 0.95; label=L"\textrm{TUC}")
-
-# fig7 = Plots.plot(collect(0:0.05:60),
-# 	bench_δp_actual[1:1201, 1] * 0.95;
-# 	xlims = (0, 30),
-# 	ylims = (0, 4.0),
-# 	size = (300, 300),
-# 	xlabel = L"t / s",
-# 	ylabel = L"\textrm{Output \,/\, p.u.}",
-# 	label = "TUC",
-# 	# xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
-# 	# foreground_color_legend = nothing,
-# 	tickfontfamily = "Palatino Bold",
-# 	legendfontfamily = "Palatino Bold",
-# 	labelfontfamily = "Palatino Bold",
-# 	framestyle = :box,
-# 	foreground_color_grid = :grey,
-# 	lw = 2,
-# 	grid = :true,
-# 	xticks = (collect(0:10:60), collect(0:10:60)))
-# fig7 = Plots.plot!(collect(0:0.05:60), δp_actual[1:1201, 1] * 0.95; lw = 2.0, label = "FDUC")
-# fig7 = Plots.plot!(collect(0:0.05:60), enhance_δp_actual[1:1201, 1] * 0.95; lw = 2.0, label = "CCFDUC")
 
 Sampling_Statue = [1, 1, 0]
 sum_ConventionalUnitsPower_bench, sum_WindPower_bench, sum_Bess_bench = calculate_sum_additionalpower(units, winds, Sampling_Statue, stroges, bench_δf_positor)
@@ -417,7 +396,7 @@ fig7 = draw_SFR_additionalpower(sum_ConventionalUnitsPower_bench, sum_WindPower_
 	sum_ConventionalUnitsPower_proposed, sum_WindPower_proposed, sum_Bess_proposed,
 	sum_ConventionalUnitsPower_enhanced, sum_WindPower_enhanced, sum_Bess_enhanced)
 
-fig8 = Plots.plot(fig6, fig7, size = (600, 200), layout = (1, 2))
+fig8 = Plots.plot(fig6, fig7, size = (600, 300), layout = (1, 2))
 Plots.savefig(fig6, filepath * "SFRcurves.svg")
 Plots.savefig(fig7, filepath * "additionalPower.svg")
 Plots.savefig(fig8, filepath * "SFRcurveandadditionaPower.svg")
@@ -506,31 +485,38 @@ for t in 1:24
 end
 xdata = collect(1:24)
 p12 = Plots.plot(xdata, data[1, :],
-	size        = (450, 150),
-	markeralpha = 1.00,
-	# markersize        = 6,
-	markercolor       = :blue,
-	markershape       = :rect,
+	size = (450, 150),
+	markeralpha = 1.00, foreground_color_legend = nothing,
+	xtickfontsize = 8,
+	ytickfontsize = 8,
+	legendfontsize = 8,
+	xguidefontsize = 8,
+	yguidefontsize = 8,
+	titlefontsize = 8,
+	linealpha = 0.75,
+	ylabelfontsize = 10,
+	xlabelfontsize = 10,
+	tickfontfamily = "Helvetica",
+	legendfontfamily = "Helvetica",
+	markercolor = :blue,
+	markershape = :rect,
 	markerstrokecolor = :blue,
 	markerstrokealpha = 0.5,
 	markerstrokewidth = 5.0,
-	line              = :steppre,
-	framestyle        = :box,
-	markersize        = 6,
-	legend_column     = -1,
-	ma                = 0.75,
-	ylabel            = "Number",
-	tickfontfamily    = "Palatino Bold",
-	legendfontfamily  = "Palatino Bold",
-	labelfontfamily   = "Palatino Bold",
-	xticks            = (collect(1:1:NT), collect(1:1:24)),
-	yticks            = (collect(1:1:NG), collect(1:1:NG)),
-	ylims             = (0.5, NG + 1),
-	# legend            = false,
+	line = :steppre,
+	framestyle = :box,
+	markersize = 6,
+	legend_column = -1,
+	ma = 0.75,
+	ylabel = "Number",
+	labelfontfamily = "Palatino Bold",
+	xticks = (collect(1:1:NT), collect(1:1:24)),
+	yticks = (collect(1:1:NG), collect(1:1:NG)),
+	ylims = (0.5, NG + 1),
 	xlabel = L"t / h",
-	label  = "TUC",
-	lc     = :blue,
-	lw     = 2)
+	label = "TUC",
+	lc = :blue,
+	lw = 2)
 Plots.plot!(xdata, data[2, :],
 	markeralpha = 1.00,
 	# markersize        = 6,
@@ -540,9 +526,6 @@ Plots.plot!(xdata, data[2, :],
 	markerstrokealpha = 0.5,
 	markerstrokewidth = 5.0,
 	markersize        = 6,
-	tickfontfamily    = "Palatino Bold",
-	legendfontfamily  = "Palatino Bold",
-	labelfontfamily   = "Palatino Bold",
 	xticks            = (collect(1:1:NT), collect(1:1:24)),
 	# yticks            = (collect(1:1:NG), nam),
 	ylims = (0.5, NG + 1),
@@ -560,15 +543,19 @@ Plots.plot!(xdata, data[3, :],
 	markerstrokewidth = 10.0,
 	ma                = 0.75,
 	markersize        = 6,
-	tickfontfamily    = "Palatino Bold",
-	legendfontfamily  = "Palatino Bold",
-	labelfontfamily   = "Palatino Bold",
 	xticks            = (collect(1:1:NT), collect(1:1:24)),
 	# yticks            = (collect(1:1:NG), nam),
 	ylims = (0.5, NG + 1),
 	# legend            = false,
-	label = "CCFDUC",
+	label = "r-FCUC",
 	lc    = :red,
 	lw    = 2)
 
 Plots.savefig(p12, filepath * "OnlineUnitRes.svg")
+
+
+file_text_path₂ = "/Users/yuanyiping/Documents/GitHub/unit_commitment_code/littlecase/output/"
+
+open(file_text_path₂ * "units_onoff.txt", "w") do file
+	writedlm(file, data)
+end
