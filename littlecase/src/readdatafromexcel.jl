@@ -5,7 +5,7 @@ function readxlssheet()
 	println("Step-1: Pkgs and functions are loaded")
 	filepath = pwd()
 	# df = XLSX.readxlsx(filepath * "\\master-2\\case1\\data\\data.xlsx")
-	df = XLSX.readxlsx("D:/ieee_tpws/code/littlecase//data/data.xlsx")
+	df = XLSX.readxlsx("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/littlecase/data/data.xlsx")
 
 	# part-1: read frequency data
 	unitsfreqparam = df["units_frequencyparam"]

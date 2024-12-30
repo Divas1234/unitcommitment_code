@@ -603,7 +603,7 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 
 	# filepath = pwd()
 	# df = XLSX.readxlsx(filepath * "\\case1\\data\\data.xlsx")
-	filepath = "D:/ieee_tpws/code/littlecase//output/"
+	filepath = "/Users/yuanyiping/Documents/GitHub/unit_commitment_code/littlecase/output/"
 	open(filepath * "Pros_calculation_result.txt", "w") do io
 
 		writedlm(io, [" "])

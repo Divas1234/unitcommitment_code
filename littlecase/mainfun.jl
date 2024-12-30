@@ -13,7 +13,8 @@ include("src/showboundrycase.jl")
 include("src/readdatafromexcel.jl")
 include("src/SUCuccommitmentmodel.jl")
 include("src/FCUCuccommitmentmodel.jl")
-include("src/casesploting.jl")
+# include("src/casesploting.jl")
+include("src/showboundrycase.jl")
 include("src/creatfrequencyconstraints.jl")
 include("src/saveresult.jl")
 include("src/BFLib_consideringFRlimit.jl")
@@ -144,7 +145,7 @@ fig2 = Plots.plot!(boundvector[:, 2];
 	label = "Low Bound")
 fig2 = Plots.plot!(boundvector[:, 1], fillrange = boundvector[:, 2], fillalpha = 0.15, c = 1)
 # fig3 = Plots.plot(fig1, fig2; size=(600, 300), layout=(1, 2))
-filepath = "D:/ieee_tpws/code/littlecase/fig/"
+filepath = "/Users/yuanyiping/Documents/GitHub/unit_commitment_code/littlecase/fig/"
 fig3 = Plots.plot(fig1, fig2; size = (600, 200), layout = (1, 2))
 Plots.savefig(fig1, filepath * "loadcurve.svg")
 Plots.savefig(fig2, filepath * "windsoutput.svg")
