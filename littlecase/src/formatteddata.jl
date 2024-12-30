@@ -1,4 +1,3 @@
-
 # reformat data
 struct config
 	# member variables
@@ -68,6 +67,7 @@ struct unit
 	t_0::Vector{Float64}
 	p_0::Vector{Float64}
 	coffi_a::Vector{Float64}
+	coffi_b::Vector{Float64}
 	coffi_b::Vector{Float64}
 	coffi_c::Vector{Float64}
 	coffi_cold_shutup_1::Vector{Float64}

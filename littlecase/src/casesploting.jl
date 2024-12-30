@@ -1,6 +1,5 @@
 using PlotlyJS, LaTeXStrings
 
-# pᵪ, pᵨ, pᵩ, r⁺, r⁻, pss_charge_p⁺, pss_charge_p⁻,su_cost, sd_cost, prod_cost,cost_sr⁺,cost_sr⁻
 function plotcasestudies(p₀, pᵨ, pᵩ, seq_sr⁺, seq_sr⁻, su_cost, sd_cost, prod_cost, cost_sr⁺, cost_sr⁻, NT, NG, ND, NW, NC)
 
     # Powerbalance fig
@@ -20,6 +19,7 @@ function plotcasestudies(p₀, pᵨ, pᵩ, seq_sr⁺, seq_sr⁻, su_cost, sd_cos
 
 end
 
+function area1(p₀, pᵨ, pᵩ, NT, NG, ND, NW, NC)
 function area1(p₀, pᵨ, pᵩ, NT, NG, ND, NW, NC)
 
     y1_index = p₀[1:NG, 1:NT] # units power

@@ -1,5 +1,7 @@
-using Revise, JuMP, Gurobi, Test, DelimitedFiles, PlotlyJS, LaTeXStrings, Plots, JLD, DataFrames
-using Clustering, StatsPlots
+using Pkg
+Pkg.activate("./.pkg")
+Pkg.add(["Revise", "JuMP", "Gurobi", "Test", "DelimitedFiles", "PlotlyJS", "LaTeXStrings", "Plots", "JLD", "DataFrames", "Clustering", "StatsPlots"])
+using Revise, JuMP, Gurobi, Test, DelimitedFiles, PlotlyJS, LaTeXStrings, Plots, DataFrames, Clustering, StatsPlots
 # using JuliaFormatter
 # plotlyjs()
 gr()

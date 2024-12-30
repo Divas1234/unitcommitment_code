@@ -424,6 +424,13 @@ function enhance_FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::
 	Δp = maximum(units.p_max[:, 1]) * 0.3
 
 	# # RoCoF constraint
+	@constraint(
+		scuc,
+		[t = 1:NT],
+		sum(winds.Mw[:, 1] .* winds.Fcmode[:, 1] .* winds.p_max[:, 1]) +
+		2 * sum(x[:, t] .* units.Hg[:, 1] .* units.p_max[:, 1]) >=
+		Δp * f_base / RoCoF_max * (sum(units.p_max[:, 1]) + sum(winds.Fcmode .* winds.p_max))
+	)
 	# @constraint(
 	# 	scuc,
 	# 	[t = 1:NT],
@@ -492,6 +499,13 @@ function enhance_FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::
 		scuc,
 		[t = 1:NT],
 		sum(ι[:, t]) >= 0.9 * NN
+	)
+
+	
+	@constraint(
+		scuc,
+		[t = 1:NT, s = 1:NS],
+		sr⁺[(1+(s-1)*NG):(s*NG), t] .* x[:, t] .>= (units.Kg[:, 1] ./ units.Rg[:, 1] * (f_base - f_nadir) * 0.1 .* x[:, t])
 	)
 
 	# Quadratic(Quasi)-steady-state constraint

@@ -20,6 +20,14 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	NS = winds.scenarios_nums
 	NW = length(winds.index)
 
+	println("prepare...")
+	flag_method_type = 0
+	fittingparameter = generate_fitting_parameters(units, winds, NG, NW, flag_method_type, 0)
+	fittingparameter = fittingparameter * (-1)
+	# println("---------------fittingparameters--------------")
+	# println(fittingparameter)
+	# println("----------------------------------------------")
+	# normalized winds parameters through COI
 	# creat scucsimulation_model
 	# scuc = Model(CPLEX.Optimizer)
 	scuc = Model(Gurobi.Optimizer)
@@ -58,8 +66,8 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 
 	c₀ = config_param.is_CoalPrice
 	pₛ = scenarios_prob
-	plentycoffi_1 = config_param.is_LoadsCuttingCoefficient * 1e10
-	plentycoffi_2 = config_param.is_WindsCuttingCoefficient * 1e0
+	plentycoffi_1 = config_param.is_LoadsCuttingCoefficient * 1e5
+	plentycoffi_2 = config_param.is_WindsCuttingCoefficient * 1e5
 	ρ⁺ = c₀ * 2
 	ρ⁻ = c₀ * 2
 
@@ -413,7 +421,7 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	f_qss = 49.5
 	Δp = maximum(units.p_max[:, 1]) * 0.3
 
-	# RoCoF constraint
+	# # RoCoF constraint
 	@constraint(
 		scuc,
 		[t = 1:NT],
@@ -421,7 +429,6 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 		2 * sum(x[:, t] .* units.Hg[:, 1] .* units.p_max[:, 1]) >=
 		Δp * f_base / RoCoF_max * (sum(units.p_max[:, 1]) + sum(winds.Fcmode .* winds.p_max))
 	)
-
 	# @constraint(
 	#     scuc,
 	#     [t = 10:NT],
@@ -429,13 +436,7 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	# )
 
 	# f_nadir constraint
-	flag_method_type = 0
-	fittingparameter = creatfrequencyfittingfunction(units, winds, NG, NW, flag_method_type, 0)
-	fittingparameter = fittingparameter * (-1)
-	println("---------------fittingparameters--------------")
-	println(fittingparameter)
-	println("----------------------------------------------")
-	# normalized winds parameters through COI
+
 	vsmFC_number = sum(winds.Fcmode[:, 1])
 	doopFC_number = length(winds.Fcmode[:, 1]) - vsmFC_number
 	adjustablewindsVSCpower = winds.Fcmode .* winds.p_max
@@ -468,6 +469,8 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 		(sum(x[:, t] .* units.Kg ./ units.Rg .* units.p_max)) +
 		fittingparameter[1, 4] <= (f_base - f_nadir) * 1.50
 	)
+
+	
 	@constraint(
 		scuc,
 		[t = 1:NT, s = 1:NS],
@@ -582,16 +585,19 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	str[1, 6] = 𝜟pd
 	str[1, 7] = 𝜟pw
 
+	fittingparameter = creatfrequencyfittingfunction(units, winds, NG, NW, flag_method_type, 0)
+	fittingparameter = fittingparameter * (-1)
+	# fittingparameter = fittingparameter_vector[1, :] * (-1)
 	δf = zeros(NT, 2)
 	for t in 1:NT
 		δf[t, 1] =
-			fittingparameter[1, 1] / sumapparentpower *
+			fittingparameter[1] / sumapparentpower *
 			(sum(x₀[:, t] .* units.Hg .* units.p_max) + sum(current_Mw .* adjustablewindsVSCpower)) +
-			fittingparameter[1, 2] / sum(units.p_max) *
+			fittingparameter[2] / sum(units.p_max) *
 			(sum(x₀[:, t] .* units.Kg .* units.Fg ./ units.Rg .* units.p_max)) +
-			fittingparameter[1, 3] / sum(units.p_max) *
+			fittingparameter[3] / sum(units.p_max) *
 			(sum(x₀[:, t] .* units.Kg ./ units.Rg .* units.p_max)) +
-			fittingparameter[1, 4]
+			fittingparameter[4]
 		δf[t, 2] = (f_base - f_nadir) * 1.0
 	end
 
