@@ -30,8 +30,8 @@ function formparameter(units, winds, Sampling_Statue, flag)
 	current_Dw = sum(winds.Dw .* adjustablewindsVSCpower) / sum(adjustablewindsVSCpower) # Dw
 	current_Mw = sum(winds.Mw .* adjustablewindsVSCpower) / sum(adjustablewindsVSCpower) # Mw
 	current_Hw = current_Mw / 2
-	current_Rw = 1 / sum(winds.Kw .* inverse_winds_Rw .* (ones(NW, 1) - winds.Fcmode) .* winds.p_max) /
-				 sum(((ones(NW, 1) - winds.Fcmode) .* winds.p_max))
+	current_Rw = 1 / (sum(winds.Kw .* inverse_winds_Rw .* (ones(NW, 1) - winds.Fcmode) .* winds.p_max) /
+					  sum(((ones(NW, 1)) .* winds.p_max)))
 
 	# units parameters
 	adjustabletheramlpower = units.p_max .* Sampling_Statue
@@ -79,7 +79,7 @@ end
 #process equation
 function trans_fun_1(trans_fun_0, 𝚫f_pre, δp_add, δt, k, flag, units, winds, Sampling_Statue, whitenoise_parameter, Q = 1)
 	tem = trans_fun_0(𝚫f_pre, δp_add, δt, k, flag, units, winds, Sampling_Statue, whitenoise_parameter)
-	tem = tem[1] .+ rand(Normal(0, Q), length(𝚫f_pre)) * whitenoise_parameter * (5^(2 - 1))
+	tem = tem[1] .+ rand(Normal(0, Q), length(𝚫f_pre)) .* whitenoise_parameter .* (5^(2 - 1))
 	return tem
 end
 
@@ -120,7 +120,7 @@ end
 #observation equation
 function obs_fun_1(obs_fun_0, δfₜ_cur, i, flag, symflag, units, winds, Sampling_Statue, whitenoise_parameter, R = 1)
 	tem = obs_fun_0(δfₜ_cur, i, flag, units, winds, Sampling_Statue, whitenoise_parameter)
-	tem = tem + rand(Normal(0, R), length(δfₜ_cur))[1] * whitenoise_parameter * (5^(2 - 1))
+	tem = tem .+ rand(Normal(0, R), length(δfₜ_cur))[1] * whitenoise_parameter * (5^(2 - 1))
 	return tem
 end
 
@@ -153,7 +153,7 @@ function frequencydynamic_ASFR(units, winds, Sampling_Statue, flag)
 	different_ASFR = zeros(size(xdata, 1), 1)
 	increment_Padd = zeros(size(xdata, 1), 1)
 	for i in 1:Int64(size(xdata, 1) - 1)
-		different_ASFR[i, 1] = (ydata[i+1, 1] - ydata[i, 1]) / δt
+		different_ASFR[i, 1] = (ydata[i + 1, 1] - ydata[i, 1]) / δt
 		str = (Fg + (1 - Fg) / Tg) * exp(-1.0 / Tg * i * δt)
 		increment_Padd[i, 1] = (Kg / Rg) * str * (f_base - ydata[i, 1])
 	end
@@ -178,7 +178,7 @@ function generate_data(initialize, trans_fun_1, obs_fun_1, tt, flag, symflag, un
 	Mg, Hg, Dg, Tg, Rg, Fg, Kg, δp, endtime = formparameter(units, winds, Sampling_Statue, flag)
 	δf, δp_add = fill(0.0, tt), fill(0.0, tt)
 	for i in 2:tt
-		δfₜ_cur = trans_fun_1(trans_fun_0, δf[i-1, 1], δp_add[i-1, 1], δt, i, flag, units, winds, Sampling_Statue, whitenoise_parameter, 1)
+		δfₜ_cur = trans_fun_1(trans_fun_0, δf[i - 1, 1], δp_add[i - 1, 1], δt, i, flag, units, winds, Sampling_Statue, whitenoise_parameter, 1)
 		δf[i] = δfₜ_cur[1]
 		δpₜ_add = obs_fun_1(obs_fun_0, δf[1:i, 1], i, flag, symflag, units, winds, Sampling_Statue, whitenoise_parameter, 1)
 		δp_add[i] = δpₜ_add[1]
@@ -224,7 +224,7 @@ function particle_filter(data, initialize, multi_trans_fun_1, reconditional_like
 	for t in 2:tt
 		# Prediction: sample from p(x_k|x_k-1)
 		symflag = 1
-		δfₜ_pre = multi_trans_fun_1(trans_fun_0, 𝚫f_post[t-1, :], 𝚫p_post[t-1, 1], δt, t - 1, flag, units, winds, Sampling_Statue, whitenoise_parameter)
+		δfₜ_pre = multi_trans_fun_1(trans_fun_0, 𝚫f_post[t - 1, :], 𝚫p_post[t - 1, 1], δt, t - 1, flag, units, winds, Sampling_Statue, whitenoise_parameter)
 		𝚫f_post[t, :] = δfₜ_pre
 		# Update: compute weights p(y_k|x_k)
 		likelihood = reconditional_likelihoods(obs_fun_0, y_true[t], 𝚫f_post[1:t, :], t, flag, units, winds, Sampling_Statue, whitenoise_parameter)

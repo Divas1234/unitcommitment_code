@@ -5,7 +5,11 @@ function readxlssheet()
 	println("Step-1: Pkgs and functions are loaded")
 	filepath = pwd()
 	# df = XLSX.readxlsx(filepath * "\\master-2\\case1\\data\\data.xlsx")
-    df = XLSX.readxlsx(filepath * "\\data\\data1.xlsx")
+	if Sys.iswindows()
+		df = XLSX.readxlsx(filepath * "/data/data1.xlsx")
+	elseif Sys.isapple()
+    	df = XLSX.readxlsx(filepath * "/bigcase/data/data1.xlsx")
+	end
 
 
 	# part-1: read frequency data

@@ -34,48 +34,31 @@
                 "settings": {
                     "fontStyle": ""
                 }
-            },
-            {
-                "scope": [
-                    "hidecomments",
-                    "comment",
-                    "comment.block",
-                    "comment.line",
-                    "comment.line.double-slash",
-                    "variable.other.jsdoc",
-                    "storage.type.class.jsdoc",
-                    "punctuation.definition.block.tag.jsdoc",
-                    "punctuation.definition.bracket.curly.begin.jsdoc",
-                    "punctuation.definition.bracket.curly.end.jsdoc",
-                    "entity.name.type.instance.jsdoc",
-                    "comment.block.documentation.ts",
-                    "comment.block.documentation.js",
-                    "comment.block.documentation.cs",
-                    "comment.block.documentation.cs entity.other.attribute-name.localname.cs",
-                    "comment.block.documentation.cs entity.other.attribute-name.cs",
-                    "comment.block.documentation.cs punctuation.definition.tag.cs",
-                    "comment.block.documentation.cs punctuation.definition.string.begin.cs",
-                    "comment.block.documentation.cs punctuation.definition.string.end.cs",
-                    "comment.block.documentation.cs punctuation.definition.bracket.curly.begin.cs",
-                    "comment.block.documentation.cs punctuation.definition.bracket.curly.end.cs",
-                    "comment.block.documentation.cs punctuation.definition.block.tag.cs",
-                    "comment.block.documentation.cs string.quoted.double.cs",
-                    "comment.block.documentation.cs entity.name.tag.localname.cs"
-                ],
-                "settings": {
-                    "foreground": "#00000000"
-                }
             }
         ],
-        "comments": "#00000000"
+        "comments": ""
     },
-    "terminal.integrated.fontSize": 12,
+    "terminal.integrated.fontSize": 14,
     "code-runner.clearPreviousOutput": true,
     "terminal.integrated.fontLigatures": true,
     "terminal.integrated.mouseWheelZoom": true,
-    "terminal.integrated.fontFamily": "",
+    "terminal.integrated.fontFamily": "Geist Mono, Bahnschrift",
     "julia.focusPlotNavigator": true,
     "editor.fontSize": 14,
-    "editor.fontFamily": "Geist Mono, 'Droid Sans Mono', Fira Code, 'Hack Nerd Font', Menlo, Monaco, 'Courier New', monospace",
-    "commentAnchors.tagHighlights.enabled": true
+    "editor.fontFamily": "'Droid Sans Mono', Geist Mono, Fira Code, 'Hack Nerd Font', Menlo, Monaco, 'Courier New', monospace",
+    "commentAnchors.tagHighlights.enabled": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "BracketHighlighter.blurOutOfScopeText": false,
+    "BracketHighlighter.differentSymbolHighlightingUsed": false,
+    "BracketHighlighter.ignoreContent": false,
+    "BracketHighlighter.backgroundColor": "",
+    "BracketHighlighter.backgroundColorSymbol": "",
+    "BracketHighlighter.border": "1px dotted blue",
+    "BracketHighlighter.borderSymbol": "",
+    "BracketHighlighter.textColorSymbol": "",
+    "BracketHighlighter.textColor": "",
+    "BracketHighlighter.fontWeight": "",
+    "BracketHighlighter.isInsideOfClosingSymbolIgnored": false,
+    "BracketHighlighter.isInsideOfOpeningSymbolIgnored": true
 }

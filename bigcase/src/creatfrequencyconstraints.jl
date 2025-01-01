@@ -1,19 +1,14 @@
 using MultivariateStats
 
-function creatfrequencyfittingfunction(units, winds, NG, NW, flag_method_type, whitenoise_parameter)
+function creatfrequencyfittingfunction(units, winds, NG, NW, flag_method_type,
+		whitenoise_parameter)
 	Set_f_nadir, set_H, set_δp, set_Dg, set_Fg, set_Kg, set_Rg, sampleStatues = montecalrosimulation(
-		units, winds, NG, NW, flag_method_type, whitenoise_parameter,
-	)
+		units, winds, NG, NW, flag_method_type, whitenoise_parameter)
 
-	res = transpose(
-		vcat(
-			transpose(set_H),
-			transpose(set_Fg ./ set_Rg),
-			transpose(1 ./ set_Rg),
-			transpose(Set_f_nadir),
-		),
-	)
-
+	res = transpose(vcat(transpose(set_H),
+		transpose(set_Fg ./ set_Rg),
+		transpose(1 ./ set_Rg),
+		transpose(Set_f_nadir)))
 
 	# println("res")
 	# println("---------------------------------------------------")
@@ -36,13 +31,13 @@ function creatfrequencyfittingfunction(units, winds, NG, NW, flag_method_type, w
 	clusteringnumber = size(dataset, 1)
 	# sampling_numbers = size(inputdata, 1)
 	@variable(PWL_model, coefficient[1, 1:coeffi_num])
-	@variable(PWL_model, tem[1:clusteringnumber, 1] >= 0)
-	@objective(PWL_model, Min, 1e3 * sum(tem[i, 1] for i in 1:clusteringnumber))
-	@constraint(
-		PWL_model,
+	@variable(PWL_model, tem[1:clusteringnumber, 1]>=0)
+	@objective(PWL_model, Min, 1e3*sum(tem[i, 1] for i in 1:clusteringnumber))
+	@constraint(PWL_model,
 		[i = 1:clusteringnumber, j = 1:4],
-		tem[i, 1] >= dataset[i, 4] - sum(sum(coefficient[1, 1:3] .* dataset[i, 1:3]) + coefficient[1, 4])
-	)
+		tem[i,
+			1]>=dataset[i, 4] -
+				sum(sum(coefficient[1, 1:3] .* dataset[i, 1:3]) + coefficient[1, 4]))
 	JuMP.optimize!(PWL_model)
 
 	# println("coefficient")
@@ -86,8 +81,7 @@ function montecalrosimulation(units, winds, NG, NW, flag_method_type, whitenoise
 		# println(i)
 		Sampling_Statue = unitsamplestatues[:, i]
 		f_nadir, t_nadir, H, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(
-			units, winds, NW, NG, Sampling_Statue, 2, flag_method_type, whitenoise_parameter,
-		)
+			units, winds, NW, NG, Sampling_Statue, 2, flag_method_type, whitenoise_parameter)
 		Set_f_nadir[i, 1], set_H[i, 1], set_δp[i, 1], set_Dg[i, 1], set_Fg[i, 1], set_Kg[i, 1], set_Rg[i, 1] = f_nadir,
 		H, δp, Dg, Fg, Kg, Rg
 	end
@@ -95,8 +89,9 @@ function montecalrosimulation(units, winds, NG, NW, flag_method_type, whitenoise
 	return Set_f_nadir, set_H, set_δp, set_Dg, set_Fg, set_Kg, set_Rg, unitsamplestatues
 end
 
-function creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_Statue, flag, flag_method_type, whitenoise_parameter)
-	Sampling_Statue[1, 1] = 1
+function creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_Statue, flag,
+		flag_method_type, whitenoise_parameter)
+	# Sampling_Statue[1, 1] = 1
 	# creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_Statue)
 
 	# normalized winds parameters through COI
@@ -113,17 +108,18 @@ function creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_St
 	current_Dw = sum(winds.Dw .* adjustablewindsVSCpower) / sum(adjustablewindsVSCpower) # Dw
 	current_Mw = sum(winds.Mw .* adjustablewindsVSCpower) / sum(adjustablewindsVSCpower) # Mw
 	current_Hw = current_Mw / 2
-	current_Rw =
-		1 / sum(winds.Kw .* inverse_winds_Rw .* (ones(NW, 1) - winds.Fcmode) .* winds.p_max) /
-		sum(((ones(NW, 1) - winds.Fcmode) .* winds.p_max))
+	current_Rw = 1 / (sum(winds.Kw .* inverse_winds_Rw .* (ones(NW, 1) - winds.Fcmode) .*
+					  winds.p_max) /
+				  sum((ones(NW, 1) .* winds.p_max)))
 
 	# units parameters
 	adjustabletheramlpower = units.p_max .* Sampling_Statue
 	current_Kg = 1.0
 	current_Tg = mean(units.Tg)
-	current_Fg_div_Rg =
-		sum(units.Kg .* units.Fg ./ units.Rg .* adjustabletheramlpower) / sum(units.p_max)
-	current_Rg = 1 / (sum(units.Kg ./ units.Rg .* adjustabletheramlpower) / sum(units.p_max)) # Kg
+	current_Fg_div_Rg = sum(units.Kg .* units.Fg ./ units.Rg .* adjustabletheramlpower) /
+						sum(units.p_max)
+	current_Rg = 1 /
+				 (sum(units.Kg ./ units.Rg .* adjustabletheramlpower) / sum(units.p_max)) # Kg
 	current_Fg = current_Fg_div_Rg * current_Rg
 	current_Dg = sum(units.Dg .* adjustabletheramlpower) / sum(units.p_max)
 	current_Hg = sum(units.Hg .* adjustabletheramlpower) / sum(units.p_max)
@@ -136,22 +132,22 @@ function creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_St
 
 	# sumD and sumH
 	if flag == 1
-		current_sumD = (sum(units.Dg .* adjustabletheramlpower)) / sumapparentpower
-		current_sumH = (sum(current_Mg .* adjustabletheramlpower)) / sumapparentpower / 2
+		# current_sumD = (sum(units.Dg .* adjustabletheramlpower)) / sumapparentpower
+		# current_sumH = (sum(current_Mg .* adjustabletheramlpower)) / sumapparentpower / 2
+		current_sumD = (sum(units.Dg .* adjustabletheramlpower) +
+						sum(winds.Dw .* winds.p_max .* winds.Fcmode +
+							winds.Kw .* winds.p_max .* (ones(NW, 1) - winds.Fcmode))) /
+					   sumapparentpower
+		current_sumH = (sum(current_Mg .* adjustabletheramlpower) +
+						sum(current_Mw .* adjustablewindsVSCpower)) /
+					   sumapparentpower / 2
 	else
-		current_sumD =
-			(
-				sum(units.Dg .* adjustabletheramlpower) + sum(
-					winds.Dw .* winds.p_max .* winds.Fcmode +
-					winds.Kw .* winds.p_max .* (ones(NW, 1) - winds.Fcmode),
-				) +
-				1 / 0.4
-			) / sumapparentpower
-		current_sumH =
-			(
-				sum(current_Mg .* adjustabletheramlpower) +
-				sum(current_Mw .* adjustablewindsVSCpower)
-			) / sumapparentpower / 2
+		current_sumD = (sum(units.Dg .* adjustabletheramlpower) +
+						sum(winds.Dw .* winds.p_max .* winds.Fcmode +
+							winds.Kw .* winds.p_max .* (ones(NW, 1) - winds.Fcmode)) +
+						1 / 0.4) / sumapparentpower
+		current_sumH = (sum(current_Mg .* adjustabletheramlpower) +
+						sum(current_Mw .* adjustablewindsVSCpower)) / sumapparentpower / 2
 	end
 
 	D, H, F, R, T, K, δp = current_sumD,
@@ -169,7 +165,11 @@ function creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_St
 		horizon = 30
 		flag, symflag = 1, 0
 		seed = rand()
-		δf_positor, δf_actual, δf_samplieddata = simulate(generate_data, particle_filter, sample_Num, horizon, flag, symflag, units, winds, Sampling_Statue, whitenoise_parameter, seed)
+		δf_positor, δf_actual, δf_samplieddata = simulate(generate_data, particle_filter,
+			sample_Num, horizon, flag,
+			symflag, units, winds,
+			Sampling_Statue,
+			whitenoise_parameter, seed)
 		f_nadir = maximum(abs.(δf_positor)) * (-1)
 		t_nadir = findmax(abs.(δf_positor))[1]
 	end

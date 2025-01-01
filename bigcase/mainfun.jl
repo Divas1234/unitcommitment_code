@@ -4,7 +4,8 @@ Pkg.activate("/.pkg/")
 include("src/pkg_enviroument.jl")
 
 UnitsFreqParam, WindsFreqParam, StrogeData, DataGen, GenCost, DataBranch, LoadCurve, DataLoad = readxlssheet()
-config_param, units, lines, loads, stroges, NB, NG, NL, ND, NT, NC = forminputdata(DataGen, DataBranch, DataLoad, LoadCurve, GenCost, UnitsFreqParam, StrogeData)
+config_param, units, lines, loads, stroges, NB, NG, NL, ND, NT, NC = forminputdata(
+	DataGen, DataBranch, DataLoad, LoadCurve, GenCost, UnitsFreqParam, StrogeData)
 
 winds, NW = genscenario(WindsFreqParam, 1)
 
@@ -13,18 +14,20 @@ winds, NW = genscenario(WindsFreqParam, 1)
 #* calculating different value along with different residual settings.
 residual_scenarios_num = 5
 
-
-e_x₀, e_p₀, e_pᵨ, e_pᵩ, e_seq_sr⁺, e_seq_sr⁻, e_pss_charge_p⁺, e_pss_charge_p⁻, e_su_cost, e_sd_cost, e_prod_cost, e_cost_sr⁺, e_cost_sr⁻ =
-	enhance_FCUC_scucmodel(NT, NB, NG, ND, NC, units, loads, winds, lines, config_param)
+e_x₀, e_p₀, e_pᵨ, e_pᵩ, e_seq_sr⁺, e_seq_sr⁻, e_pss_charge_p⁺, e_pss_charge_p⁻, e_su_cost, e_sd_cost, e_prod_cost, e_cost_sr⁺, e_cost_sr⁻ = enhance_FCUC_scucmodel(
+	NT, NB, NG, ND, NC, units, loads, winds, lines, config_param)
 savebalance_result(e_p₀, e_pᵨ, e_pᵩ, e_pss_charge_p⁺, e_pss_charge_p⁻, 3)
 
 #! NOTE basesline UC and FCUC
-x₀, p₀, pᵨ, pᵩ, seq_sr⁺, seq_sr⁻, pss_charge_p⁺, pss_charge_p⁻, su_cost, sd_cost, prod_cost, cost_sr⁺, cost_sr⁻ = FCUC_scucmodel(NT, NB, NG, ND, NC, units, loads, winds, lines, config_param)
+x₀, p₀, pᵨ, pᵩ, seq_sr⁺, seq_sr⁻, pss_charge_p⁺, pss_charge_p⁻, su_cost, sd_cost, prod_cost, cost_sr⁺, cost_sr⁻ = FCUC_scucmodel(
+	NT, NB, NG, ND, NC, units, loads, winds, lines, config_param)
 savebalance_result(p₀, pᵨ, pᵩ, pss_charge_p⁺, pss_charge_p⁻, 2)
 
-bench_x₀, bench_p₀, bench_pᵨ, bench_pᵩ, bench_seq_sr⁺, bench_seq_sr⁻, bench_pss_charge_p⁺, bench_pss_charge_p⁻, bench_su_cost, bench_sd_cost, bench_prod_cost, bench_cost_sr⁺, bench_cost_sr⁻ = SUC_scucmodel(NT, NB, NG, ND, NC, units, loads, winds, lines,
+bench_x₀, bench_p₀, bench_pᵨ, bench_pᵩ, bench_seq_sr⁺, bench_seq_sr⁻, bench_pss_charge_p⁺, bench_pss_charge_p⁻, bench_su_cost, bench_sd_cost, bench_prod_cost, bench_cost_sr⁺, bench_cost_sr⁻ = SUC_scucmodel(
+	NT, NB, NG, ND, NC, units, loads, winds, lines,
 	config_param)
-savebalance_result(bench_p₀, bench_pᵨ, bench_pᵩ, bench_pss_charge_p⁺, bench_pss_charge_p⁻, 1)
+savebalance_result(
+	bench_p₀, bench_pᵨ, bench_pᵩ, bench_pss_charge_p⁺, bench_pss_charge_p⁻, 1)
 
 #! load curve
 fig1 = Plots.bar(LoadCurve[:, 2];
@@ -39,7 +42,7 @@ fig1 = Plots.bar(LoadCurve[:, 2];
 	foreground_color_grid = :grey,
 	lc = :cornflowerblue,
 	tickfontfamily = "Palatino Bold",
- 	legendfontfamily = "Palatino Bold",
+	legendfontfamily = "Palatino Bold",
 	# fa=0.5,
 	background_color_inside = :transparent,
 	grid = :true,
@@ -104,7 +107,8 @@ fig2 = Plots.plot!(boundvector[:, 2];
 	ma = 0.95,
 	markersize = 3.0,
 	label = "Low Bound")
-fig2 = Plots.plot!(boundvector[:, 1], fillrange = boundvector[:, 2], fillalpha = 0.15, c = 1)
+fig2 = Plots.plot!(
+	boundvector[:, 1], fillrange = boundvector[:, 2], fillalpha = 0.15, c = 1)
 # fig3 = Plots.plot(fig1, fig2; size=(600, 300), layout=(1, 2))
 filepath = "D:/ieee_tpws/code/littlecase//fig/"
 fig3 = Plots.plot(fig1, fig2; size = (500, 280), layout = (1, 2))
@@ -114,10 +118,13 @@ Plots.savefig(fig3, filepath * "LOADandWINDscurves.svg")
 
 # plotcasestudies(p₀,pᵨ,pᵩ,seq_sr⁺,seq_sr⁻,su_cost,sd_cost,prod_cost,cost_sr⁺,cost_sr⁻,NT,NG,ND,NW,NC,)
 # NOTE cost
-nam = repeat([L"\textrm{Shut-up\,\,\, cost}", L"\textrm{Shut-off\,\,\, cost}", L"\textrm{Fuel\,\,\, cost}"];
+nam = repeat(
+	[L"\textrm{Shut-up\,\,\, cost}",
+		L"\textrm{Shut-off\,\,\, cost}", L"\textrm{Fuel\,\,\, cost}"];
 	outer = 2)
 ctg = repeat(["FDUC", "TUC"]; inner = 3)
-res = transpose([su_cost*10 sd_cost*10 prod_cost; bench_su_cost*10 bench_sd_cost*10 bench_prod_cost*1.05])
+res = transpose([su_cost*10 sd_cost*10 prod_cost;
+				 bench_su_cost*10 bench_sd_cost*10 bench_prod_cost*1.05])
 fig4 = StatsPlots.groupedbar(nam,
 	res;
 	size = (300, 300),
@@ -128,25 +135,32 @@ fig4 = StatsPlots.groupedbar(nam,
 	bar_position = :dodge,
 	bar_width = 0.7,
 	group = ctg,
-	xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10, titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
+	xtickfontsize = 10, ytickfontsize = 10, legendfontsize = 10, xguidefontsize = 10, yguidefontsize = 10,
+	titlefontsize = 10, linealpha = 0.75, ylabelfontsize = 12, xlabelfontsize = 12,
 	framestyle = :box,
 	foreground_color_grid = :grey,
 	ylabel = L"Cost\,/\,\times e^3\,")
 Plots.savefig(fig4, filepath * "schedulingCOSTresults.pdf")
 
 # NOTE frequencydynamics
-enhance_nadir_distribution, nadir_distribution, bench_nadir_distribution = zeros(NT, 1), zeros(NT, 1), zeros(NT, 1)
-enhance_rocof_distribution, rocof_distribution, bench_rocof_distribution = zeros(NT, 1), zeros(NT, 1), zeros(NT, 1)
+enhance_nadir_distribution, nadir_distribution, bench_nadir_distribution = zeros(NT, 1),
+zeros(NT, 1), zeros(NT, 1)
+enhance_rocof_distribution, rocof_distribution, bench_rocof_distribution = zeros(NT, 1),
+zeros(NT, 1), zeros(NT, 1)
 tem = zeros(NT, 3)
 for t in 1:NT
-	enhance_nadir_distribution[t, 1], enhance_t_nadir, H2, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(units, winds, NW, NG, e_x₀[:, t], 2, 1, 1e-4)
-	nadir_distribution[t, 1], t_nadir, H1, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(units, winds, NW, NG, x₀[:, t], 2, 0, 0)
-	bench_nadir_distribution[t, 1], t_nadir, H0, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(units, winds, NW, NG, bench_x₀[:, t], 1, 0, 0)
+	enhance_nadir_distribution[t, 1], enhance_t_nadir, H2, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(
+		units, winds, NW, NG, e_x₀[:, t], 2, 1, 1e-4)
+	nadir_distribution[t, 1], t_nadir, H1, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(
+		units, winds, NW, NG, x_OscInitStruct[:, t], 2, 0, 0)
+	bench_nadir_distribution[t, 1], t_nadir, H0, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(
+		units, winds, NW, NG, bench_x_OscInitStruct[:, t], 1, 0, 0)
 	tem[t, 1], tem[t, 2], tem[t, 3] = H2, H1, H0
-	enhance_rocof_distribution[t, 1], rocof_distribution[t, 1], bench_rocof_distribution[t, 1] = δp / (H2 * 2) * 50 / 4, δp / (H1 * 2) * 50 / 4, δp / (H0 * 2) * 50 / 4
+	enhance_rocof_distribution[t, 1], rocof_distribution[t, 1], bench_rocof_distribution[t, 1] = 
+		δp / (H2 * 2) * 50 / 4, δp / (H1 * 2) * 50 / 4, δp / (H0 * 2) * 50 / 4
 end
-@show DataFrame(x₀, :auto)
-@show DataFrame(bench_x₀, :auto)
+@show DataFrame(x_OscInitStruct, :auto)
+@show DataFrame(bench_x_OscInitStruct, :auto)
 
 maximum(units.p_max) * 0.50
 # Plots.plot(tem[:, 1])
@@ -155,7 +169,8 @@ maximum(units.p_max) * 0.50
 sx = repeat(["CCFDUC", "FCUC", "TUC"]; inner = 24)
 std = [2, 3, 4, 1, 2, 3, 5, 2, 3, 3]
 nam = repeat(collect(1:1:24); outer = 3)
-p5 = groupedbar(nam, -[enhance_rocof_distribution rocof_distribution bench_rocof_distribution] / 10;
+p5 = groupedbar(
+	nam, -[enhance_rocof_distribution rocof_distribution bench_rocof_distribution] / 10;
 	group = sx,
 	xlims = (0, 25),
 	ylims = (-1.250, 0.750),
@@ -182,7 +197,8 @@ p5 = groupedbar(nam, -[enhance_rocof_distribution rocof_distribution bench_rocof
 # gr()
 Plots.plot(enhance_nadir_distribution)
 
-p6 = groupedbar(nam, -[-enhance_nadir_distribution -nadir_distribution -bench_nadir_distribution];
+p6 = groupedbar(
+	nam, -[-enhance_nadir_distribution -nadir_distribution -bench_nadir_distribution];
 	group = sx,
 	xlims = (0, 25),
 	ylims = (-1.0, 0.50),
@@ -222,9 +238,12 @@ Plots.savefig(fig7,
 
 # # NOTE SFRcurve
 res = zeros(NT, 2)
-enhance_δf_positor, enhance_δf_actual, enhance_δp_actual, enhance_δf_samplieddata = simulate(generate_data, particle_filter, 100, 60, 1, 1, units, winds, [1, 1, 0], 1E-4, 1234)
-δf_positor, δf_actual, δp_actual, δf_samplieddata = simulate(generate_data, particle_filter, 100, 60, 1, 1, units, winds, [1, 1, 0], 0, 1234)
-bench_δf_positor, bench_δf_actual, bench_δp_actual, bench_δf_samplieddata = simulate(generate_data, particle_filter, 100, 60, 0, 1, units, winds, [1, 1, 0], 0, 1234)
+enhance_δf_positor, enhance_δf_actual, enhance_δp_actual, enhance_δf_samplieddata = simulate(
+	generate_data, particle_filter, 100, 60, 1, 1, units, winds, [1, 1, 0], 1E-4, 1234)
+δf_positor, δf_actual, δp_actual, δf_samplieddata = simulate(
+	generate_data, particle_filter, 100, 60, 1, 1, units, winds, [1, 1, 0], 0, 1234)
+bench_δf_positor, bench_δf_actual, bench_δp_actual, bench_δf_samplieddata = simulate(
+	generate_data, particle_filter, 100, 60, 0, 1, units, winds, [1, 1, 0], 0, 1234)
 # δp_actual, bench_δf_actual = δp_actual * 0.50, bench_δf_actual * 0.50
 # δf_positor, bench_δf_positor = δf_positor * 0.25 / 0.32, bench_δf_positor * 0.62 / 0.55
 # fig6 = Plots.plot(
@@ -258,7 +277,8 @@ fig6 = Plots.plot(collect(0:0.05:60),
 	label = "TUC")
 
 fig6 = Plots.plot!(collect(0:0.05:60), -δf_positor[1:1201, 1]; lw = 2.0, label = "FDUC")
-fig6 = Plots.plot!(collect(0:0.05:60), -enhance_δf_positor[1:1201, 1]; lw = 2.0, label = "CCFDUC")
+fig6 = Plots.plot!(
+	collect(0:0.05:60), -enhance_δf_positor[1:1201, 1]; lw = 2.0, label = "CCFDUC")
 
 # filepath = pwd()
 # fig5 = Plots.plot(collect(1:NT), -bench_nadir_distribution,
@@ -273,10 +293,10 @@ fig6 = Plots.plot!(collect(0:0.05:60), -enhance_δf_positor[1:1201, 1]; lw = 2.0
 fig5 = Plots.plot(collect(1:NT), -bench_nadir_distribution;
 	marker = :circle,
 	label = L"TUC",
-	size = (300, 300),
-	# ylims = (-0.8, -0.2),
+	size = (300, 300)    # ylims = (-0.8, -0.2),
 )
-fig5 = Plots.plot!(collect(1:NT), -nadir_distribution; xtickfontsize = 6, ytickfontsize = 6, legendfontsize = 6)
+fig5 = Plots.plot!(collect(1:NT), -nadir_distribution; xtickfontsize = 6,
+	ytickfontsize = 6, legendfontsize = 6)
 
 Plots.savefig(fig5, filepath * "nadirdistributionINFO.svg")
 
@@ -303,7 +323,8 @@ Plots.savefig(fig5, filepath * "nadirdistributionINFO.svg")
 # Plots.savefig(fig6, filepath * "SFRcurves.pdf")
 
 M, H, D, T, R, F, K, δp, endtime = formparameter(units, winds, x₀[:, 4], 1)
-bench_M, bench_H, bench_D, T, bench_R, bench_F, K, δp, endtime = formparameter(units, winds, bench_x₀[:, 4], 1)
+bench_M, bench_H, bench_D, T, bench_R, bench_F, K, δp, endtime = formparameter(
+	units, winds, bench_x₀[:, 4], 1)
 @show formparameter(units, winds, [1, 1, 0], 1)
 @show formparameter(units, winds, [1, 1, 0], 1)
 
@@ -339,8 +360,10 @@ fig7 = Plots.plot(collect(0:0.05:60),
 	lw = 2,
 	grid = :true,
 	xticks = (collect(0:10:60), collect(0:10:60)))
-fig7 = Plots.plot!(collect(0:0.05:60), δp_actual[1:1201, 1] * 0.95; lw = 2.0, label = "FDUC")
-fig7 = Plots.plot!(collect(0:0.05:60), enhance_δp_actual[1:1201, 1] * 0.95; lw = 2.0, label = "CCFDUC")
+fig7 = Plots.plot!(
+	collect(0:0.05:60), δp_actual[1:1201, 1] * 0.95; lw = 2.0, label = "FDUC")
+fig7 = Plots.plot!(
+	collect(0:0.05:60), enhance_δp_actual[1:1201, 1] * 0.95; lw = 2.0, label = "CCFDUC")
 
 fig8 = Plots.plot(fig6, fig7, size = (500, 280), layout = (1, 2))
 Plots.savefig(fig6, filepath * "SFRcurves.svg")
@@ -390,9 +413,7 @@ p1 = Plots.scatter!(npro_z';
 	xticks            = (collect(1:1:NT), collect(1:1:24)),
 	yticks            = (collect(1:1:NG), nam),
 	ylims             = (0.5, NG),
-	legend            = false,
-	# xlabel="t/h",
-	# ylabel="机组编号"
+	legend            = false    # xlabel="t/h",    # ylabel="机组编号"
 )
 Plots.savefig(p1, filepath * "OnlineUnitRes.pdf")
 
