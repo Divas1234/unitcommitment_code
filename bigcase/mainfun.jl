@@ -1,6 +1,3 @@
-using Pkg
-Pkg.activate("/.pkg/")
-
 include("src/pkg_enviroument.jl")
 
 UnitsFreqParam, WindsFreqParam, StrogeData, DataGen, GenCost, DataBranch, LoadCurve, DataLoad = readxlssheet()
@@ -11,7 +8,7 @@ winds, NW = genscenario(WindsFreqParam, 1)
 
 # boundrycondition(NB::Int64, NL::Int64, NG::Int64, NT::Int64, ND::Int64, units::unit, loads::load, lines::transmissionline, winds::wind, stroges::stroge)
 
-#* calculating different value along with different residual settings.
+#NOTE calculating different value along with different residual settings.
 residual_scenarios_num = 5
 
 e_x₀, e_p₀, e_pᵨ, e_pᵩ, e_seq_sr⁺, e_seq_sr⁻, e_pss_charge_p⁺, e_pss_charge_p⁻, e_su_cost, e_sd_cost, e_prod_cost, e_cost_sr⁺, e_cost_sr⁻ = enhance_FCUC_scucmodel(
@@ -156,8 +153,12 @@ for t in 1:NT
 	bench_nadir_distribution[t, 1], t_nadir, H0, δp, Kg, Fg, Rg, Dg = creatingfrequencyresponsesamplingdata(
 		units, winds, NW, NG, bench_x_OscInitStruct[:, t], 1, 0, 0)
 	tem[t, 1], tem[t, 2], tem[t, 3] = H2, H1, H0
-	enhance_rocof_distribution[t, 1], rocof_distribution[t, 1], bench_rocof_distribution[t, 1] = 
-		δp / (H2 * 2) * 50 / 4, δp / (H1 * 2) * 50 / 4, δp / (H0 * 2) * 50 / 4
+	enhance_rocof_distribution[t, 1], rocof_distribution[t, 1], bench_rocof_distribution[t, 1] = δp /
+																								 (H2 *
+																								  2) *
+																								 50 /
+																								 4,
+	δp / (H1 * 2) * 50 / 4, δp / (H0 * 2) * 50 / 4
 end
 @show DataFrame(x_OscInitStruct, :auto)
 @show DataFrame(bench_x_OscInitStruct, :auto)

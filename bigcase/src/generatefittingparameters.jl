@@ -9,8 +9,8 @@ function generatefreq_fittingparameters(units, winds, NG, NW, NN, flag_method_ty
 
 	for n in 1:NN
 		println(n)
-		## setting the maxinum number of clycing periods for each sampling scenarios
-		## for avoiding grad missing issues.
+		##? setting the maxinum number of clycing periods for each sampling scenarios
+		##? for avoiding grad missing issues.
 		clycing_period = 0
 		while clycing_period <= 100
 			tem_fittingparameter_vector = creatfrequencyfittingfunction(

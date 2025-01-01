@@ -1,37 +1,30 @@
 using Pkg
-Pkg.activate("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/.pkg/")
-# Pkg.add("Revise")
-# Pkg.add("JuMP")
-# Pkg.add("Gurobi")
-# Pkg.add("Test")
-# Pkg.add("DelimitedFiles")
-# Pkg.add("PlotlyJS")
-# Pkg.add("LaTeXStrings")
-# Pkg.add("Plots")
-# Pkg.add("JLD")
-# Pkg.add("DataFrames")
-# Pkg.add("Clustering")
-# Pkg.add("StatsPlots")
-# Pkg.add("Distributions")
-# Pkg.add("XLSX")
-using Revise, JuMP, Gurobi, Test, DelimitedFiles, PlotlyJS, LaTeXStrings, Plots, JLD, DataFrames,Distributions, XLSX
-using Clustering, StatsPlots
 
-# using JuliaFormatter
-# plotlyjs()
+# Activate the project environment
+Pkg.activate(joinpath(@__DIR__, "../.pkg/"))
+
+# Import necessary packages
+using Revise, JuMP, Gurobi, Test, DelimitedFiles, PlotlyJS, LaTeXStrings, Plots, JLD, DataFrames, Distributions, XLSX, Clustering, StatsPlots
+
+# Setup plotting
 gr()
+
+# Set random seed for reproducibility
 using Random
 Random.seed!(1234)
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/formatteddata.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/renewableenergysimulation.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/showboundrycase.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/readdatafromexcel.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/SUCuccommitmentmodel.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/FCUCuccommitmentmodel.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/casesploting.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/creatfrequencyconstraints.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/saveresult.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/BFLib_consideringFRlimit.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/enhance_FCUCuccommitmentmodel.jl")
-include("/Users/yuanyiping/Documents/GitHub/unit_commitment_code/bigcase/src/generatefittingparameters.jl")
+
+# Include necessary source files
+base_path = joinpath(@__DIR__, "../src")
+include(joinpath(base_path, "formatteddata.jl"))
+include(joinpath(base_path, "renewableenergysimulation.jl"))
+include(joinpath(base_path, "showboundrycase.jl"))
+include(joinpath(base_path, "readdatafromexcel.jl"))
+include(joinpath(base_path, "SUCuccommitmentmodel.jl"))
+include(joinpath(base_path, "FCUCuccommitmentmodel.jl"))
+include(joinpath(base_path, "casesploting.jl"))
+include(joinpath(base_path, "creatfrequencyconstraints.jl"))
+include(joinpath(base_path, "saveresult.jl"))
+include(joinpath(base_path, "BFLib_consideringFRlimit.jl"))
+include(joinpath(base_path, "enhance_FCUCuccommitmentmodel.jl"))
+include(joinpath(base_path, "generatefittingparameters.jl"))
 
