@@ -155,7 +155,8 @@ function creatingfrequencyresponsesamplingdata(units, winds, NW, NG, Sampling_St
 	# current_sumH, current_Fg, current_Rg, current_Tg, current_Kg,
 	# p_step
 
-	D, H, F, R, T, K, δp = coi_generation_frequencyparameters(units, winds, NW, NG, Sampling_Statue, flag)
+	D, H, F, R, T, K, δp = coi_generation_frequencyparameters(
+		units, winds, NW, NG, Sampling_Statue, flag)
 
 	# flag_method_type = 1
 	if flag_method_type == 0
@@ -202,4 +203,3 @@ function Rmduplicateelements(str, index)
 
 	return str_1
 end
-
