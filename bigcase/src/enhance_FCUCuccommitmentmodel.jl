@@ -27,13 +27,17 @@ function enhance_FCUC_scucmodel(
 	NW = length(winds.index)
 
 	println("prepare...")
+
+	# flag_method_type = 1 discrztized solution
+	# flag_method_type = 0 analytical SFR solution
+
 	flag_method_type = 1
 	NN = 1 # sampled scenarios for chance constraints
 	μ, σ = 0, 0.5e-3
 	fittingparameter_vector, whitenoise_parameter, whitenoise_parameter_probability = generatefreq_fittingparameters(
 		units, winds, NG, NW, NN, flag_method_type, μ, σ)
 
-    println(fittingparameter_vector)
+	println(fittingparameter_vector)
 
 	println("\n\n\n\n\n")
 	println("Step-3: Creating dispatching model")
@@ -400,6 +404,7 @@ function enhance_FCUC_scucmodel(
 	big_M = 1e6
 	indices_to_PSSunits = zeros(NG, 1)
 	indices_to_PSSunits[findall(x -> x < 100, units.Rg)] .= 1
+	equivalent_coefficient = 1.0
 	for i in 1:NW
 		if winds.Fcmode[i, 1] == 0
 			inverse_winds_Rw[i, 1] = 1 / winds.Rw[i, 1]
@@ -463,52 +468,57 @@ function enhance_FCUC_scucmodel(
 			fittingparameter = fittingparameter_vector[n, :] * (-1)
 			println(fittingparameter)
 			# normalized winds parameters through COI
-			# @constraint(scuc,
-			# 	[t = 1:NT],
-			# 	fittingparameter[1] *
-			# 	(sum(x[:, t] .* units.Hg .* units.p_max) .+ sum(current_Mw .* adjustablewindsVSCpower)) .+
-			# 	fittingparameter[2] *
-			# 	(sum(indices_to_PSSunits .* x[:, t] .* units.Kg .* units.Fg ./ units.Rg .* units.p_max)) .+
-			# 	fittingparameter[3] *
-			# 	(sum(indices_to_PSSunits .* x[:, t] .* units.Kg ./ units.Rg .* units.p_max))
-			# 	<=
-			# 	sum(x[:, t] .* units.p_max) * (f_base - f_nadir) * 2.0 +
-			# 	ξ[n, t] * big_M -
-			# 	sum(x[:, t] .* units.p_max) * fittingparameter[4])
+			@constraint(scuc,
+				[t = 1:NT],
+				fittingparameter[1] *
+				(sum(x[:, t] .* units.Hg .* units.p_max) .+
+				 sum(current_Mw .* adjustablewindsVSCpower)) .+
+				fittingparameter[2] *
+				(sum(indices_to_PSSunits .* x[:, t] .* units.Kg .* units.Fg ./ units.Rg .*
+					 units.p_max)) .+
+				fittingparameter[3] *
+				(sum(indices_to_PSSunits .* x[:, t] .* units.Kg ./ units.Rg .*
+					 units.p_max))
+				<=sum(x[:, t] .* units.p_max) * (f_base - f_nadir) * 2.0 + ξ[n, t] * big_M -
+				  sum(x[:, t] .* units.p_max) * fittingparameter[4])
 
-			# @constraint(scuc,
-			# 	[t = 1:NT],
-			# 	fittingparameter[1] *
-			# 	(sum(x[:, t] .* units.Hg .* units.p_max) .+ sum(current_Mw .* adjustablewindsVSCpower)) .+
-			# 	fittingparameter[2] *
-			# 	(sum(indices_to_PSSunits .* x[:, t] .* units.Kg .* units.Fg ./ units.Rg .* units.p_max)) .+
-			# 	fittingparameter[3] *
-			# 	(sum(indices_to_PSSunits .* x[:, t] .* units.Kg ./ units.Rg .* units.p_max))
-			# 	>=(-1) * (sum(x[:, t] .* units.p_max) * (f_base - f_nadir) * 2.0 +
-			# 	   ξ[n, t] * big_M -
-			# 	   sum(x[:, t] .* units.p_max) * fittingparameter[4]))
+			@constraint(scuc,
+				[t = 1:NT],
+				fittingparameter[1] *
+				(sum(x[:, t] .* units.Hg .* units.p_max) .+
+				 sum(current_Mw .* adjustablewindsVSCpower)) .+
+				fittingparameter[2] *
+				(sum(indices_to_PSSunits .* x[:, t] .* units.Kg .* units.Fg ./ units.Rg .*
+					 units.p_max)) .+
+				fittingparameter[3] *
+				(sum(indices_to_PSSunits .* x[:, t] .* units.Kg ./ units.Rg .*
+					 units.p_max))
+				>=(-1) * (sum(x[:, t] .* units.p_max) * (f_base - f_nadir) * 2.0 +
+				   ξ[n, t] * big_M - sum(x[:, t] .* units.p_max) * fittingparameter[4]))
 
 			@constraints(scuc,
 				begin
 					[t = 1:NT], ξ[n, t] <= (1 - ι[n, t]) * big_M
-					[t = 1:NT], ξ[n, t] >= sum(x[:, t] .* units.p_max) - (1 - (1 - ι[n, t])) * big_M
+					[t = 1:NT],
+					ξ[n, t] >= sum(x[:, t] .* units.p_max) - (1 - (1 - ι[n, t])) * big_M
 					[t = 1:NT], ξ[n, t] <= sum(x[:, t] .* units.p_max)
 					[t = 1:NT], ξ[n, t] >= 0
 				end)
 		end
 
-		# @constraint(scuc,
-		# 	[t = 1:NT],
-		# 	sum(ι[:, t])>=0.75 * NN)
-
-		# @constraint(scuc,
-		# 	[t = 1:NT, s = 1:NS],
-		# 	sr⁺[(1 + (s - 1) * NG):(s * NG), t] .*
-		# 	x[:,
-		# 		t].>=(units.Kg[:, 1] ./ units.Rg[:, 1] * (f_base - f_nadir) * 0.1 .*
-		# 			  x[:, t]))
+		@constraint(scuc,
+			[t = 1:NT],
+			sum(ι[:, t])>=0.75 * NN)
 	end
-	# Quadratic(Quasi)-steady-state constraint
+	@constraint(scuc,
+		[t = 1:NT, s = 1:NS],
+		indices_to_PSSunits .*
+		sr⁺[(1 + (s - 1) * NG):(s * NG),
+			t].>=
+		(indices_to_PSSunits .* units.Kg[:, 1] ./ units.Rg[:, 1] * (f_base - f_nadir) *
+		 equivalent_coefficient .* x[:, t]) / f_base)
+
+	#ANCHOR -  Quadratic(Quasi)-steady-state constraint
 	# fc = units.p_max
 	# coff₃ = units.Dg .* units.p_max
 	# @constraint(

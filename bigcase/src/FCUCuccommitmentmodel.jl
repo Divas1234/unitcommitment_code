@@ -1,5 +1,12 @@
 using JuMP, Gurobi, Test, DelimitedFiles
 # using CPLEX
+# using Match
+
+# using Logging
+# # 创建一个新的日志过滤器
+# filter_logger = Logging.SimpleLogger(stderr, Logging.Warn)
+# # 设置全局日志过滤器
+# global_logger(filter_logger)
 
 include("linearization.jl")
 include("powerflowcalculation.jl")
@@ -21,14 +28,21 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	NW = length(winds.index)
 
 	println("prepare...")
-	flag_method_type = 0
-	fittingparameter = generate_fitting_parameters(
-		units, winds, NG, NW, flag_method_type, 0)
-	fittingparameter = fittingparameter * (-1)
-	# println("---------------fittingparameters--------------")
-	# println(fittingparameter)
-	# println("----------------------------------------------")
-	# normalized winds parameters through COI
+
+	# flag_method_type = 1 discrztized solution
+	# flag_method_type = 0 analytical SFR solution
+
+	flag_method_type = 1
+	NN = 1 # sampled scenarios for chance constraints
+	μ, σ = 0, 0.5e-3
+	fittingparameter_vector, whitenoise_parameter, whitenoise_parameter_probability = generatefreq_fittingparameters(
+		units, winds, NG, NW, NN, flag_method_type, μ, σ)
+
+	println(fittingparameter_vector)
+
+	println("\n\n\n\n\n")
+	println("Step-3: Creating dispatching model")
+
 	# creat scucsimulation_model
 	# scuc = Model(CPLEX.Optimizer)
 	scuc = Model(Gurobi.Optimizer)
@@ -374,36 +388,20 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	# @constraint(scuc, [s = 1:NS], pss_sumchargeenergy[(s - 1) * NC + 1:s * NC,1] .>= least_operatime * NT * storges.p_max[:,1])
 	println("\t constraints: 11) stroges system constraints limits\t\t\t done")
 
-	# frequency constrol process
+	#SECTION -  frequency constrol process
 	f_base = 50.0
-	RoCoF_max = 3.75
+	RoCoF_max = 1.5
 	f_nadir = 49.5
 	f_qss = 49.5
-	Δp = maximum(units.p_max[:, 1]) * 0.3
-
-	# RoCoF constraint
-	@constraint(scuc,
-		[t = 1:NT],
-		sum(winds.Mw[:, 1] .* winds.Fcmode[:, 1] .* winds.p_max[:, 1]) +
-		2 *
-		sum(x[:, t] .* units.Hg[:, 1] .*
-			units.p_max[:,
-			1])>=
-		Δp * f_base / RoCoF_max *
-		(sum(units.p_max[:, 1]) + sum(winds.Fcmode .* winds.p_max)))
-
-	# @constraint(
-	#     scuc,
-	#     [t = 10:NT],
-	#     sum(x[:,t]) >= 1.50,
-	# )
-
-	# f_nadir constraint
-
+	Δp = maximum(units.p_max[:, 1]) * 1.0
 	vsmFC_number = sum(winds.Fcmode[:, 1])
 	doopFC_number = length(winds.Fcmode[:, 1]) - vsmFC_number
 	adjustablewindsVSCpower = winds.Fcmode .* winds.p_max
 	inverse_winds_Rw = zeros(NW, 1)
+	big_M = 1e6
+	indices_to_PSSunits = zeros(NG, 1)
+	indices_to_PSSunits[findall(x -> x < 100, units.Rg)] .= 1
+	equivalent_coefficient = 1.0
 	for i in 1:NW
 		if winds.Fcmode[i, 1] == 0
 			inverse_winds_Rw[i, 1] = 1 / winds.Rw[i, 1]
@@ -413,30 +411,51 @@ function FCUC_scucmodel(NT::Int64, NB::Int64, NG::Int64, ND::Int64, NC::Int64, u
 	current_Dw = sum(winds.Dw .* adjustablewindsVSCpower) / sum(adjustablewindsVSCpower) # Dw
 	current_Mw = sum(winds.Mw .* adjustablewindsVSCpower) / sum(adjustablewindsVSCpower) # Mw
 	current_Hw = current_Mw / 2
-	current_Rw = 1 / sum(winds.Kw .* inverse_winds_Rw .* (ones(NW, 1) - winds.Fcmode) .*
-					 winds.p_max) /
-				 sum(((ones(NW, 1) - winds.Fcmode) .* winds.p_max))
+	current_Rw = 1 / (sum(winds.Kw .* inverse_winds_Rw .* (ones(NW, 1) - winds.Fcmode) .*
+					  winds.p_max) / sum((ones(NW, 1) - winds.Fcmode) .* winds.p_max))
 
-	#  powers for intia frequency response
-	localapparentpower = (sum(units.p_max[:, 1]) + sum(winds.p_max .* winds.Fcmode))
-	sumapparentpower = (localapparentpower - sum(winds.p_max .* winds.Fcmode) +
-						sum(winds.p_max))
+	#LINK -  RoCoF constraint
+	@constraint(scuc,
+		[t = 1:NT],
+		sum(winds.Mw[:, 1] .* winds.Fcmode[:, 1] .* winds.p_max[:, 1]) +
+		sum(x[:, t] .* units.Hg[:, 1] .* units.p_max[:, 1]) *
+		2>=
+		Δp * f_base / RoCoF_max *
+		(sum(units.p_max[:, 1]) + sum(winds.Fcmode .* winds.p_max)) / 50)
+
+	# @constraint(scuc,
+	# 	[t = 1:NT],
+	# 	fittingparameter[1, 1] / sumapparentpower *
+	# 	(sum(x[:, t] .* units.Hg .* units.p_max) +
+	# 	 sum(current_Mw .* adjustablewindsVSCpower)) +
+	# 	fittingparameter[1, 2] / sum(units.p_max) *
+	# 	(sum(x[:, t] .* units.Kg .* units.Fg ./ units.Rg .* units.p_max)) +
+	# 	fittingparameter[1, 3] / sum(units.p_max) *
+	# 	(sum(x[:, t] .* units.Kg ./ units.Rg .* units.p_max)) +
+	# 	fittingparameter[1, 4]<=(f_base - f_nadir) * 1.50)
 
 	@constraint(scuc,
 		[t = 1:NT],
-		fittingparameter[1, 1] / sumapparentpower *
-		(sum(x[:, t] .* units.Hg .* units.p_max) +
-		 sum(current_Mw .* adjustablewindsVSCpower)) +
-		fittingparameter[1, 2] / sum(units.p_max) *
-		(sum(x[:, t] .* units.Kg .* units.Fg ./ units.Rg .* units.p_max)) +
-		fittingparameter[1, 3] / sum(units.p_max) *
-		(sum(x[:, t] .* units.Kg ./ units.Rg .* units.p_max)) +
-		fittingparameter[1, 4]<=(f_base - f_nadir) * 1.50)
+		fittingparameter[1] *
+		(sum(x[:, t] .* units.Hg .* units.p_max) .+
+		 sum(current_Mw .* adjustablewindsVSCpower)) .+
+		fittingparameter[2] *
+		(sum(indices_to_PSSunits .* x[:, t] .* units.Kg .* units.Fg ./ units.Rg .*
+			 units.p_max)) .+
+		fittingparameter[3] *
+		(sum(indices_to_PSSunits .* x[:, t] .* units.Kg ./ units.Rg .*
+			 units.p_max)) .+
+		(sum(x[:, t] .* units.p_max) *
+		 fittingparameter[4])
+		<=sum(x[:, t] .* units.p_max) * (f_base - f_nadir) * 2.0)
 
 	@constraint(scuc,
 		[t = 1:NT, s = 1:NS],
-		sr⁺[(1 + (s - 1) * NG):(s * NG), t] .*
-		x[:, t].>=(units.Kg[:, 1] ./ units.Rg[:, 1] * (f_base - f_nadir) * 0.1 .* x[:, t]))
+		indices_to_PSSunits .*
+		sr⁺[(1 + (s - 1) * NG):(s * NG),
+			t].>=
+		(indices_to_PSSunits .* units.Kg[:, 1] ./ units.Rg[:, 1] * (f_base - f_nadir) *
+		 equivalent_coefficient .* x[:, t]) / f_base)
 
 	# Quadratic(Quasi)-steady-state constraint
 	# fc = units.p_max
